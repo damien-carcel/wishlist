@@ -125,6 +125,7 @@ ENV APP_ENV=prod
 ENV APP_DEBUG=0
 
 WORKDIR /var/www/html
+VOLUME /var/www/html/public
 
 COPY --from=front-end-builder /var/www/html/bin /var/www/html/bin
 COPY --from=front-end-builder /var/www/html/config /var/www/html/config
@@ -140,15 +141,3 @@ COPY --from=front-end-builder /var/www/html/composer.json /var/www/html/composer
 COPY --from=front-end-builder /var/www/html/composer.lock /var/www/html/composer.lock
 
 RUN chown -R www-data:www-data /var/www/html
-
-###################################
-# Nginx image used for production #
-###################################
-
-FROM nginx:alpine as nginx
-
-COPY docker/nginx/default.conf /etc/nginx/conf.d/default.conf
-COPY docker/nginx/upload.conf /etc/nginx/conf.d/upload.conf
-
-RUN mkdir -p /var/www/html/public
-COPY --from=front-end-builder --chown=root:root /var/www/html/public /var/www/html/public
