@@ -4,11 +4,10 @@ version: 2.1
 
 executor-config: &executor-config
   machine:
-    image: ubuntu-2004:202104-01
+    image: ubuntu-2004:202111-01
   environment:
     COMPOSE_DOCKER_CLI_BUILD: 1
     DOCKER_BUILDKIT: 1
-    HOST_USER_IDS: "1001:1002"
 
 # -----
 
@@ -101,9 +100,6 @@ jobs:
       - run:
           name: Run client unit tests
           command: make client-unit-tests IO="--watchAll=false --ci --reporters=default --reporters=jest-junit"
-      - run:
-          name: Set back the project permissions so the CircleCI user so the test results and artefact can be used
-          command: sudo chown -R 1001:1002 ~/project
       - store_test_results:
           path: api/reports
       - store_artifacts:
