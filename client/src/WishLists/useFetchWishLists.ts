@@ -26,7 +26,7 @@ export const useFetchWishLists = () => {
 
         setWishLists(wishLists);
       } catch (error) {
-        setError(error);
+        error instanceof Error ? setError(error) : setError(new Error('Something went terribly wrong…'));
       }
     };
 
