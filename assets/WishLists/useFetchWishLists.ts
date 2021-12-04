@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react';
-import { createHeaders, url } from './api';
 
 export const useFetchWishLists = () => {
   const [wishLists, setWishLists] = useState<string>('');
@@ -10,8 +9,12 @@ export const useFetchWishLists = () => {
     const fetchWishLists = async () => {
       try {
         setLoading(true);
-        const response = await fetch(url('/api/wishlists'), {
-          headers: createHeaders(),
+
+        const headers = new Headers();
+        headers.append('Accept', 'application/json');
+
+        const response = await fetch('/api/wishlists', {
+          headers: headers,
           method: 'GET',
           mode: 'cors',
         });

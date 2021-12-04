@@ -14,7 +14,7 @@ services:
     working_dir: '/srv/app'
 
   encore:
-    command: 'yarn encore dev --watch'
+    command: 'yarn watch'
     image: 'node:slim'
     tty: true
     user: '${HOST_USER_IDS:-1000:1000}'

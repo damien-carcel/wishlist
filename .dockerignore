@@ -1,9 +1,0 @@
-public/check.php
-tests
-var
-.env.*
-.gitignore
-.php_cd.php
-.php-cs-fixer.cache
-.php-cs-fixer.dist.php
-behat.yaml*
