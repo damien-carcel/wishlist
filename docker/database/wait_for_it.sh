@@ -2,8 +2,6 @@
 
 set -e
 
-cd api
-
 COUNTER=1
 MAX_COUNTER=45
 

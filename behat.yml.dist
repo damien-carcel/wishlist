@@ -20,7 +20,20 @@ acceptance-with-io:
             filters:
                 tags: '@with-io'
 
-integration:
+integration-in-memory:
+    extensions:
+        FriendsOfBehat\SymfonyExtension:
+            kernel:
+                environment: 'in_memory'
+    suites:
+        user:
+            paths:
+                - '%paths.base%/tests/integration'
+            contexts: []
+            filters:
+                tags: '@in-memory'
+
+integration-with-io:
     extensions:
         FriendsOfBehat\SymfonyExtension:
             kernel:
@@ -31,4 +44,4 @@ integration:
                 - '%paths.base%/tests/integration'
             contexts: []
             filters:
-                tags: '@integration'
+                tags: '@with-io'
