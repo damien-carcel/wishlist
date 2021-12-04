@@ -1,12 +1,9 @@
-#index:
-#    path: /
-#    controller: App\Controller\DefaultController::index
+index:
+    path: /
+    controller: App\Infrastructure\Symfony\Web\Index
 
-kernel:
-    resource: ../src/Kernel.php
-    type: annotation
-
-# API routes
+#####################
+# Wishlist API routes
 
 get_wishlists:
     path: /api/wishlists

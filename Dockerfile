@@ -90,6 +90,8 @@ ENV COMPOSER_CACHE_DIR=/tmp/composer/cache
 
 WORKDIR /var/www/html
 
+# yarn encore production
+
 COPY . .
 RUN mkdir -p /tmp/composer/cache && \
     composer install --optimize-autoloader --no-interaction --no-scripts --prefer-dist --no-dev
