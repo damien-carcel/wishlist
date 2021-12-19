@@ -1,7 +1,7 @@
-type WishListProps = { wishLists: string };
+type WishListProps = { wishLists: { message: string } };
 
 const WishLists = ({ wishLists }: WishListProps) => {
-  return <div>{wishLists}</div>;
+  return <div>{wishLists.message}</div>;
 };
 
 export default WishLists;

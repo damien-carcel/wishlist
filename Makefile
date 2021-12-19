@@ -143,9 +143,21 @@ tests: install-back-end-dependencies install-front-end-dependencies #main# Execu
 	@echo ""
 	@make lint-back-end-code
 	@echo ""
+	@echo "Lint the stylesheets"
+	@echo ""
+	@make stylelint
+	@echo ""
+	@echo "Lint the TypeScript code"
+	@echo ""
+	@make eslint
+	@echo ""
 	@echo "Run PHP static analysis"
 	@echo ""
 	@make analyse-back-end-code
+	@echo ""
+	@echo "Check for front-end type errors"
+	@echo ""
+	@make type-check-front-end
 	@echo ""
 	@echo "Check coupling violations between layers of the back-end code"
 	@echo ""
@@ -158,6 +170,10 @@ tests: install-back-end-dependencies install-front-end-dependencies #main# Execu
 	@echo "Execute back-end unit tests"
 	@echo ""
 	@make back-end-unit-tests
+	@echo ""
+	@echo "Execute front-end unit tests"
+	@echo ""
+	@make front-end-unit-tests
 	@echo ""
 	@echo "Execute \"in memory\" back-end acceptance tests"
 	@echo ""
@@ -176,22 +192,6 @@ tests: install-back-end-dependencies install-front-end-dependencies #main# Execu
 	@echo "Execute back-end acceptance tests with I/O"
 	@echo ""
 	@make back-end-acceptance-tests-with-io
-	@echo ""
-	@echo "Lint the stylesheets"
-	@echo ""
-	@make stylelint
-	@echo ""
-	@echo "Lint the TypeScript code"
-	@echo ""
-	@make eslint
-	@echo ""
-	@echo "Check for front-end type errors"
-	@echo ""
-	@make type-check-front-end
-	@echo ""
-	@echo "Execute front-end unit tests"
-	@echo ""
-	@make front-end-unit-tests
 	@echo ""
 	@echo "All tests were successfully executed"
 	@echo ""
@@ -227,7 +227,11 @@ phpmd: ## Run PHP Mess Detector.
 
 .PHONY: back-end-unit-tests
 back-end-unit-tests: ## Execute back-end unit tests (use "make back-end-unit-tests IO=path/to/test" to run a specific test). Use "XDEBUG_MODE=debug make back-end-unit-tests" to activate the debugger.
+ifeq ($(CI),true)
+	@$(DC_RUN) php vendor/bin/phpspec run ${IO} --format=junit
+else
 	@$(DC_RUN) php vendor/bin/phpspec run ${IO}
+endif
 
 .PHONY: back-end-unit-tests
 describe: ## Create a phpspec unit test (use as follow: "make describe IO=namepace/with/slash/instead/of/antislash", then running "make back-end-unit-tests" will create the class corresponding to the test).
@@ -262,7 +266,7 @@ stylelint: ## Lint the stylesheet code.
 
 .PHONY: eslint
 eslint: ## Lint the TypeScript code.
-	@$(DC_RUN) node yarn -s eslint
+	@$(DC_RUN) node yarn -s eslint ${IO}
 
 .PHONY: type-check-front-end
 type-check-front-end: ## Check for front-end type errors.
@@ -270,4 +274,8 @@ type-check-front-end: ## Check for front-end type errors.
 
 .PHONY: front-end-unit-tests
 front-end-unit-tests: ## Execute front-end unit tests (use "make front-end-unit-tests IO=path/to/test" to run a specific test).
-	@$(DC_RUN) -e JEST_JUNIT_OUTPUT_DIR="./reports" -e JEST_JUNIT_OUTPUT_NAME="jest.xml" node yarn test ${IO}
+ifeq ($(CI),true)
+	@$(DC_RUN) -e JEST_JUNIT_OUTPUT_DIR="./reports" -e JEST_JUNIT_OUTPUT_NAME="jest.xml" node yarn jest --watchAll=false --ci --reporters=default --reporters=jest-junit
+else
+	@$(DC_RUN) node yarn jest --watchAll ${IO}
+endif

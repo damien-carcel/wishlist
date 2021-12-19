@@ -22,17 +22,17 @@ jobs:
             docker login -u $DOCKERHUB_USER -p $DOCKERHUB_PASSWORD
             make -j build-dev
       - run:
-          name: Create cache and configuration directories for the API dependencies
+          name: Create cache and configuration directories for the back-end dependencies
           command: |
             mkdir -p ~/.cache/composer
             mkdir -p ~/.config/composer
       - restore_cache:
           name: Restore the "vendor" directory
           keys:
-            - vendor-{{ .Environment.CACHE_VERSION }}-{{ checksum "api/composer.lock" }}
+            - vendor-{{ .Environment.CACHE_VERSION }}-{{ checksum "composer.lock" }}
             - vendor-{{ .Environment.CACHE_VERSION }}-
       - run:
-          name: Create cache and configuration directories for the client dependencies
+          name: Create cache and configuration directories for the front-end dependencies
           command: |
             touch ~/.yarnrc
             mkdir -p ~/.yarn
@@ -40,54 +40,27 @@ jobs:
       - restore_cache:
           name: Restore the "node_modules" directory
           keys:
-            - node_modules-{{ .Environment.CACHE_VERSION }}-{{ checksum "client/yarn.lock" }}
+            - node_modules-{{ .Environment.CACHE_VERSION }}-{{ checksum "yarn.lock" }}
             - node_modules-{{ .Environment.CACHE_VERSION }}-
       - run:
           name: Install all dependencies in parallel
           command: make -j dependencies
       - save_cache:
           name: Cache the "vendor" directory
-          key: vendor-{{ .Environment.CACHE_VERSION }}-{{ checksum "api/composer.lock" }}
+          key: vendor-{{ .Environment.CACHE_VERSION }}-{{ checksum "composer.lock" }}
           paths:
-            - api/vendor
+            - vendor
       - save_cache:
           name: Cache the "node_modules" directory
-          key: node_modules-{{ .Environment.CACHE_VERSION }}-{{ checksum "client/yarn.lock" }}
+          key: node_modules-{{ .Environment.CACHE_VERSION }}-{{ checksum "yarn.lock" }}
           paths:
-            - client/node_modules
+            - node_modules
       - run:
-          name: Create report directory
-          command: mkdir -p api/reports
+          name: Create the report directory
+          command: mkdir -p reports
       - run:
-          name: Lint API code
-          command: make lint-api-code
-      - run:
-          name: Run API static analysis
-          command: make analyse-api-code
-      - run:
-          name: Run coupling detector
-          command: make api-coupling
-      - run:
-          name: Run PHP mess detector
-          command: make phpmd
-      - run:
-          name: Run API unit tests
-          command: make api-unit-tests IO="--format=junit" > api/reports/unit_tests.xml
-      - run:
-          name: Run API acceptance tests in memory
-          command: make api-acceptance-tests-in-memory IO="-f junit -o reports/acceptance_in_memory"
-      - run:
-          name: Start PostgreSQL container and update database schema
-          command: make database
-      - run:
-          name: Run API acceptance tests with I/O
-          command: make api-acceptance-tests-with-io IO="-f junit -o reports/acceptance_with_io"
-      - run:
-          name: Run API integration tests
-          command: make api-integration-tests IO="-f junit -o reports/integration"
-      - run:
-          name: Create report directory
-          command: mkdir -p client/reports
+          name: Lint PHP code
+          command: make lint-back-end-code
       - run:
           name: Lint CSS code
           command: make stylelint IO="--custom-formatter 'node_modules/stylelint-junit-formatter' > reports/stylelint.xml"
@@ -95,21 +68,44 @@ jobs:
           name: Lint TypeScript code
           command: make eslint IO="--no-fix -f junit > reports/eslint.xml"
       - run:
-          name: Run TypeScript type checking
-          command: make type-check-client
+          name: Run back-end static analysis
+          command: make analyse-back-end-code
       - run:
-          name: Run client unit tests
-          command: make client-unit-tests IO="--watchAll=false --ci --reporters=default --reporters=jest-junit"
+          name: Run TypeScript type checking
+          command: make type-check-front-end
+      - run:
+          name: Run coupling detector
+          command: make check-back-end-coupling
+      - run:
+          name: Run PHP mess detector
+          command: make phpmd
+      - run:
+          name: Run back-end unit tests
+          command: make back-end-unit-tests > reports/unit_tests.xml
+      - run:
+          name: Run front-end unit tests
+          command: make front-end-unit-tests
+      - run:
+          name: Run "in memory" back-end acceptance tests
+          command: make back-end-acceptance-tests-in-memory IO="-f junit -o reports/acceptance_in_memory"
+      - run:
+          name: Run "in memory" back-end integration tests
+          command: make back-end-integration-tests-with-io IO="-f junit -o reports/integration_in_memory"
+      - run:
+          name: Start PostgreSQL container and update database schema
+          command: make database
+      - run:
+          name: Run back-end acceptance tests with I/O
+          command: make back-end-acceptance-tests-with-io IO="-f junit -o reports/acceptance_with_io"
+      - run:
+          name: Run back-end integration tests with I/O
+          command: make back-end-integration-tests-with-io IO="-f junit -o reports/integration_with_io"
       - store_test_results:
-          path: api/reports
+          path: reports
       - store_artifacts:
-          path: api/reports
+          path: reports
       - store_artifacts:
-          path: api/var/log
-      - store_test_results:
-          path: client/reports
-      - store_artifacts:
-          path: client/reports
+          path: var/log
 
 workflows:
   pull_request:

@@ -20,6 +20,6 @@ final class WishLists implements Controller
 {
     public function __invoke(): JsonResponse
     {
-        return new JsonResponse('No wish lists for now.');
+        return new JsonResponse(['message' => 'No wish lists for now.']);
     }
 }
