@@ -9,6 +9,15 @@ executor-config: &executor-config
     COMPOSE_DOCKER_CLI_BUILD: 1
     DOCKER_BUILDKIT: 1
 
+commands:
+  set_host_user_ids_environment_variable:
+    description: "Set Docker Compose HOST_USER_IDS environment variable according to the host virtual machine"
+    steps:
+      - run:
+          name: Set Docker Compose HOST_USER_IDS environment variable according to the host virtual machine
+          command: |
+            echo 'export HOST_USER_IDS="$(id -u):$(id -g)"' >> $BASH_ENV
+
 # -----
 
 jobs:
@@ -16,6 +25,7 @@ jobs:
     <<: *executor-config
     steps:
       - checkout
+      - set_host_user_ids_environment_variable
       - run:
           name: Build all the Docker images
           command: |
