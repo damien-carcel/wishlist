@@ -37,7 +37,7 @@ services:
       PHP_IDE_CONFIG: 'serverName=wishlist'
       XDEBUG_CONFIG: 'client_host=172.17.0.1'
       XDEBUG_MODE: '${XDEBUG_MODE:-off}'
-    image: 'carcel/wishlist/dev:php'
+    image: 'carcel/wishlist:dev'
     user: '${HOST_USER_IDS:-1000:1000}'
     volumes:
       - '.:/srv/app:rw'
@@ -65,7 +65,7 @@ services:
       XDEBUG_MODE: '${XDEBUG_MODE:-off}'
     expose:
       - '8000'
-    image: 'carcel/wishlist/dev:php'
+    image: 'carcel/wishlist:dev'
     labels:
       - 'traefik.enable=true'
       - 'traefik.http.routers.api-dev.entrypoints=web'
@@ -86,7 +86,7 @@ services:
     image: 'postgres:13'
     ports:
       - '54032:5432'
-    restart: unless-stopped
+    restart: on-failure
 
   fpm:
     build:
@@ -98,17 +98,16 @@ services:
     environment:
       APP_ENV: 'prod'
       APP_DEBUG: 0
-    image: 'carcel/wishlist/api:fpm'
+    image: 'carcel/wishlist:fpm'
     restart: on-failure
+    volumes:
+      - 'app-public:/var/www/html/public'
 
   nginx:
-    build:
-      context: '.'
-      target: 'nginx'
     depends_on:
       - fpm
       - traefik
-    image: 'carcel/wishlist/api:nginx'
+    image: 'nginx:alpine'
     labels:
       - 'traefik.enable=true'
       - 'traefik.http.routers.api.entrypoints=websecure'
@@ -116,6 +115,10 @@ services:
       - 'traefik.http.routers.api.rule=PathPrefix(`/`)'
       - 'traefik.http.routers.api.tls=true'
     restart: on-failure
+    volumes:
+      - './docker/nginx/default.conf:/etc/nginx/conf.d/default.conf'
+      - './docker/nginx/upload.conf:/etc/nginx/conf.d/upload.conf'
+      - 'app-public:/var/www/html/public'
 
   traefik:
     image: 'traefik'
@@ -129,3 +132,6 @@ services:
       - './traefik/dynamic:/etc/traefik/dynamic:ro'
       - './traefik/ssl:/etc/traefik/ssl:ro'
       - './traefik/traefik.yaml:/etc/traefik/traefik.yaml:ro'
+
+volumes:
+  app-public:

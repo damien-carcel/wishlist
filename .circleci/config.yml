@@ -117,13 +117,29 @@ jobs:
       - store_artifacts:
           path: var/log
 
+  build:
+    <<: *executor-config
+    steps:
+      - checkout
+      - run:
+          name: Identify on Docker Hub
+          command: docker login --username carcel --password $DOCKER_HUB_TOKEN
+      - run:
+          name: Build the product Docker images and push them to the Docker Hub
+          command: make push-to-prod
+
 workflows:
-  pull_request:
+  test_build_and_deploy:
     jobs:
       - tests:
           context:
             - docker-hub-credentials
+      - build:
+          context:
+            - docker-hub-credentials
+          requires:
+            - tests
           filters:
             branches:
-              ignore:
+              only:
                 - main

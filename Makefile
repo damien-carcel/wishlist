@@ -280,3 +280,15 @@ ifeq ($(CI),true)
 else
 	@$(DC_RUN) node yarn jest --watchAll ${IO}
 endif
+
+# Deploy the application
+
+CURRENT_GIT_COMMIT_HASH=`git rev-parse HEAD`
+
+.PHONY: tag-for-prod
+tag-for-prod: build-prod ## Tag the Docker images for production.
+	@docker tag carcel/wishlist:fpm carcel/wishlist:${CURRENT_GIT_COMMIT_HASH}
+
+.PHONY: push-to-prod
+push-to-prod: tag-for-prod ## Push the production images to the Docker hub.
+	@docker push carcel/wishlist:${CURRENT_GIT_COMMIT_HASH}
