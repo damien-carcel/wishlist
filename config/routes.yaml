@@ -1,0 +1,11 @@
+index:
+    path: /
+    controller: App\Infrastructure\Symfony\Web\Index
+
+#####################
+# Wishlist API routes
+
+get_wishlists:
+    path: /api/wishlists
+    controller: App\Infrastructure\WishList\UserInterface\Web\WishLists
+    methods: GET

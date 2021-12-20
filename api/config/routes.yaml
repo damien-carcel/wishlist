@@ -1,8 +1,0 @@
-#index:
-#    path: /
-#    controller: App\Controller\DefaultController::index
-
-get_wishlists:
-  path: /api/wishlists
-  controller: App\Infrastructure\WishList\UserInterface\Web\WishLists
-  methods: GET
