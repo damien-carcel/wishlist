@@ -84,17 +84,35 @@ RUN chmod +x /usr/local/bin/composer
 # the application for production      #
 #######################################
 
-FROM dev as builder
+FROM dev as back-end-builder
 
 ENV COMPOSER_CACHE_DIR=/tmp/composer/cache
+ENV APP_ENV=prod
+ENV APP_DEBUG=0
 
 WORKDIR /var/www/html
 
-# yarn encore production
-
 COPY . .
 RUN mkdir -p /tmp/composer/cache && \
-    composer install --optimize-autoloader --no-interaction --no-scripts --prefer-dist --no-dev
+    composer install --optimize-autoloader --no-interaction --no-scripts --prefer-dist --no-dev && \
+    composer dump-env prod && \
+    bin/console ca:c
+
+#######################################
+# Intermediate image used to prepare  #
+# the application for production      #
+#######################################
+
+FROM node:slim as front-end-builder
+
+ENV YARN_CACHE_FOLDER=/tmp/yarn/cache
+
+WORKDIR /var/www/html
+
+COPY --from=back-end-builder /var/www/html /var/www/html
+RUN mkdir -p /tmp/yarn/cache && \
+    yarn install --frozen-lockfile --check-files && \
+    yarn build
 
 ###############################
 # Image used for production   #
@@ -104,12 +122,24 @@ RUN mkdir -p /tmp/composer/cache && \
 FROM base as fpm
 
 ENV APP_ENV=prod
+ENV APP_DEBUG=0
 
-COPY --from=builder /var/www/html /var/www/html
 WORKDIR /var/www/html
-RUN mkdir -p var && \
-    bin/console ca:c && \
-    chown -R www-data:www-data /var/www/html
+
+COPY --from=front-end-builder /var/www/html/bin /var/www/html/bin
+COPY --from=front-end-builder /var/www/html/config /var/www/html/config
+COPY --from=front-end-builder /var/www/html/migrations /var/www/html/migrations
+COPY --from=front-end-builder /var/www/html/public /var/www/html/public
+COPY --from=front-end-builder /var/www/html/src /var/www/html/src
+COPY --from=front-end-builder /var/www/html/templates /var/www/html/templates
+COPY --from=front-end-builder /var/www/html/translations /var/www/html/translations
+COPY --from=front-end-builder /var/www/html/var/cache/prod /var/www/html/var/cache/prod
+COPY --from=front-end-builder /var/www/html/vendor /var/www/html/vendor
+COPY --from=front-end-builder /var/www/html/.env.local.php /var/www/html/.env.local.php
+COPY --from=front-end-builder /var/www/html/composer.json /var/www/html/composer.json
+COPY --from=front-end-builder /var/www/html/composer.lock /var/www/html/composer.lock
+
+RUN chown -R www-data:www-data /var/www/html
 
 ###################################
 # Nginx image used for production #
@@ -121,4 +151,4 @@ COPY docker/nginx/default.conf /etc/nginx/conf.d/default.conf
 COPY docker/nginx/upload.conf /etc/nginx/conf.d/upload.conf
 
 RUN mkdir -p /var/www/html/public
-COPY --from=builder --chown=root:root /var/www/html/public /var/www/html/public
+COPY --from=front-end-builder --chown=root:root /var/www/html/public /var/www/html/public

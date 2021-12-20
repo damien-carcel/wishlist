@@ -53,6 +53,7 @@ services:
     depends_on:
       - database
       - encore
+      - traefik
     environment:
       PHP_CONF_DISPLAY_ERRORS: 1
       PHP_CONF_DISPLAY_STARTUP_ERRORS: 1
@@ -98,7 +99,7 @@ services:
       APP_ENV: 'prod'
       APP_DEBUG: 0
     image: 'carcel/wishlist/api:fpm'
-    restart: 'always'
+    restart: on-failure
 
   nginx:
     build:
@@ -106,6 +107,7 @@ services:
       target: 'nginx'
     depends_on:
       - fpm
+      - traefik
     image: 'carcel/wishlist/api:nginx'
     labels:
       - 'traefik.enable=true'
@@ -121,7 +123,7 @@ services:
       - '${WISHLIST_WEB_HTTP_PORT:-80}:80'
       - '${WISHLIST_WEB_HTTPS_PORT:-443}:443'
       - '${WISHLIST_TRAEFIK_ADMIN_PORT:-8080}:8080'
-    restart: always
+    restart: on-failure
     volumes:
       - '/var/run/docker.sock:/var/run/docker.sock'
       - './traefik/dynamic:/etc/traefik/dynamic:ro'

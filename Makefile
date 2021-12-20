@@ -36,22 +36,22 @@ endif
 
 .PHONY: pull
 pull: ## Pull all Docker images used in docker-compose.yaml.
-	@docker-compose pull
+	@docker-compose pull --ignore-pull-failures
 
 .PHONY: build
-build: pull ## Build all Docker images at once (back-end and front-end, development and production).
-	@docker-compose build --parallel --pull
+build: ## Build all Docker images at once (back-end and front-end, development and production).
+	@docker-compose build --parallel
 
 .PHONY: build-dev
 build-dev: ## Build development image (carcel/wishlist/dev:php).
-	@docker-compose build --pull php
+	@docker-compose build php
 
 .PHONY: build-prod
 build-prod: ## Build production images (carcel/wishlist/fpm and carcel/wishlist/nginx).
-	@docker-compose build --parallel --pull nginx fpm
+	@docker-compose build --parallel nginx fpm
 
 .PHONY: up
-up: ## Pull all Docker images used in docker-compose.yaml.
+up: ## Start all services defined docker-compose.yaml.
 	@docker-compose up -d --remove-orphans ${IO}
 
 # Prepare the application dependencies
@@ -105,8 +105,7 @@ database: install-back-end-dependencies ## Setup the database.
 	@$(DC_RUN) php bin/console doctrine:migrations:migrate --no-interaction --allow-no-migration
 
 .PHONY: dev
-dev: database install-front-end-dependencies #main# Serve the application in development mode.
-	@make proxy
+dev: database install-front-end-dependencies proxy #main# Serve the application in development mode.
 	@echo ""
 	@echo "Starting the application in development mode"
 	@echo ""
@@ -114,15 +113,17 @@ dev: database install-front-end-dependencies #main# Serve the application in dev
 	@make up IO=dev
 	@echo ""
 	@echo "The application is now running in development mode, you can access it through http://wishlist.docker.localhost"
+	@echo ""
 
 .PHONY: prod
-prod: database install-front-end-dependencies #main# Serve the application in production mode.
+prod: pull build-prod database proxy #main# Serve the application in production mode.
+	@echo ""
 	@echo "Starting the application in production mode"
 	@echo ""
-	@make proxy
 	@make up IO=nginx
 	@echo ""
 	@echo "The application is now running in production mode, you can access it through https://wishlist.docker.localhost"
+	@echo ""
 
 .PHONY: down
 down: #main# Stop the application and remove all containers, networks and volumes.
