@@ -4,7 +4,8 @@ version: 2.1
 
 executor-config: &executor-config
   machine:
-    image: ubuntu-2004:202111-01
+      image: ubuntu-2004:202111-02
+      docker_layer_caching: true
   environment:
     COMPOSE_DOCKER_CLI_BUILD: 1
     DOCKER_BUILDKIT: 1
@@ -83,15 +84,12 @@ jobs:
       - run:
           name: Run TypeScript type checking
           command: make type-check-front-end
-      - run:
-          name: Run coupling detector
-          command: make check-back-end-coupling
-      - run:
-          name: Run PHP mess detector
-          command: make phpmd
+#      - run:
+#          name: Run coupling detector
+#          command: make check-back-end-coupling
       - run:
           name: Run back-end unit tests
-          command: make back-end-unit-tests > reports/unit_tests.xml
+          command: make back-end-unit-tests IO="--log-junit reports/unit_tests.xml"
       - run:
           name: Run front-end unit tests
           command: make front-end-unit-tests

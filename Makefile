@@ -23,9 +23,6 @@ IO ?=
 L ?= max
 TL ?= max
 
-PHPMD_OUTPUT=ansi
-PHPMD_RULESETS=cleancode,codesize,controversial,design,naming,unusedcode
-
 ifeq ($(CI),true)
 	DC_RUN = docker-compose run --rm -T
 else
@@ -159,14 +156,10 @@ tests: install-back-end-dependencies install-front-end-dependencies #main# Execu
 	@echo "Check for front-end type errors"
 	@echo ""
 	@make type-check-front-end
-	@echo ""
-	@echo "Check coupling violations between layers of the back-end code"
-	@echo ""
-	@make check-back-end-coupling
-	@echo ""
-	@echo "Run PHP Mess Detector"
-	@echo ""
-	@make phpmd
+#	@echo ""
+#	@echo "Check coupling violations between layers of the back-end code"
+#	@echo ""
+#	@make check-back-end-coupling
 	@echo ""
 	@echo "Execute back-end unit tests"
 	@echo ""
@@ -218,25 +211,13 @@ analyse-back-end-tests: ## Run PHP static analysis on tests folder.
 .PHONY: analyse-back-end-code ## Run static analysis on PHP code.
 analyse-back-end-code: analyse-back-end-src analyse-back-end-tests
 
-.PHONY: check-back-end-coupling
-check-back-end-coupling: ## Check coupling violations between back-end code layers.
-	@$(DC_RUN) php vendor/bin/php-coupling-detector detect --config-file .php_cd.php
-
-.PHONY: phpmd
-phpmd: ## Run PHP Mess Detector.
-	@$(DC_RUN) php vendor/bin/phpmd src,tests --exclude *src/Kernel.php ${PHPMD_OUTPUT} ${PHPMD_RULESETS}
+#.PHONY: check-back-end-coupling
+#check-back-end-coupling: ## Check coupling violations between back-end code layers.
+#	@$(DC_RUN) php vendor/bin/php-coupling-detector detect --config-file .php_cd.php
 
 .PHONY: back-end-unit-tests
-back-end-unit-tests: ## Execute back-end unit tests (use "make back-end-unit-tests IO=path/to/test" to run a specific test). Use "XDEBUG_MODE=debug make back-end-unit-tests" to activate the debugger.
-ifeq ($(CI),true)
-	@$(DC_RUN) php vendor/bin/phpspec run ${IO} --format=junit
-else
-	@$(DC_RUN) php vendor/bin/phpspec run ${IO}
-endif
-
-.PHONY: back-end-unit-tests
-describe: ## Create a phpspec unit test (use as follow: "make describe IO=namepace/with/slash/instead/of/antislash", then running "make back-end-unit-tests" will create the class corresponding to the test).
-	@$(DC_RUN) php vendor/bin/phpspec describe ${IO}
+back-end-unit-tests: ## Execute back-end unit tests (use "make back-end-unit-tests IO=path/to/test" to run a specific test or directory). Use "XDEBUG_MODE=debug make back-end-unit-tests" to activate the debugger.
+	@$(DC_RUN) php vendor/bin/phpunit ${IO}
 
 .PHONY: back-end-integration-tests-in-memory
 back-end-integration-tests-in-memory: ## Execute back-end integration tests (use "make back-end-integration-tests-in-memory IO=path/to/test" to run a specific test). Use "XDEBUG_MODE=debug make back-end-integration-tests-in-memory" to activate the debugger.
@@ -253,11 +234,6 @@ back-end-acceptance-tests-in-memory: ## Execute "in memory" back-end acceptance 
 .PHONY: back-end-acceptance-tests-with-io
 back-end-acceptance-tests-with-io: ## Execute back-end acceptance tests with I/O (use "make back-end-acceptance-tests-with-io IO=path/to/test" to run a specific test). Use "XDEBUG_MODE=debug make back-end-acceptance-tests-with-io" to activate the debugger.
 	@$(DC_RUN) php vendor/bin/behat --profile=acceptance-with-io -o std --colors -f pretty ${IO}
-
-.PHONY: phpmetrics
-phpmetrics: ## Run PHP Metrics.
-	@$(DC_RUN) php vendor/bin/phpmetrics --report-html=reports/phpmetrics .
-	@xdg-open reports/phpmetrics/index.html
 
 # Front-end tests
 
