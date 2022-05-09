@@ -23,33 +23,34 @@ IO ?=
 L ?= max
 TL ?= max
 
+DOCKER_COMPOSE ?= docker-compose
 ifeq ($(CI),true)
-	DC_RUN = docker-compose run --rm -T
+	DC_RUN = $(DOCKER_COMPOSE) run --rm -T
 else
-	DC_RUN = docker-compose run --rm
+	DC_RUN = $(DOCKER_COMPOSE) run --rm
 endif
 
 # Build Docker images
 
 .PHONY: pull
 pull: ## Pull all Docker images used in docker-compose.yaml.
-	@docker-compose pull --ignore-pull-failures
+	@$(DOCKER_COMPOSE) pull --ignore-pull-failures
 
 .PHONY: build
 build: ## Build all Docker images at once (back-end and front-end, development and production).
-	@docker-compose build --parallel
+	@$(DOCKER_COMPOSE) build --parallel
 
 .PHONY: build-dev
 build-dev: ## Build development image (carcel/wishlist/dev:php).
-	@docker-compose build php
+	@$(DOCKER_COMPOSE) build php
 
 .PHONY: build-prod
 build-prod: ## Build production images (carcel/wishlist/fpm and carcel/wishlist/nginx).
-	@docker-compose build --parallel nginx fpm
+	@$(DOCKER_COMPOSE) build --parallel nginx fpm
 
 .PHONY: up
 up: ## Start all services defined docker-compose.yaml.
-	@docker-compose up -d --remove-orphans ${IO}
+	@$(DOCKER_COMPOSE) up -d --remove-orphans ${IO}
 
 # Prepare the application dependencies
 
@@ -124,7 +125,7 @@ prod: pull build-prod database proxy #main# Serve the application in production 
 
 .PHONY: down
 down: #main# Stop the application and remove all containers, networks and volumes.
-	@docker-compose down -v
+	@$(DOCKER_COMPOSE) down -v
 
 # Usefull aliases
 
