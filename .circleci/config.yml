@@ -1,143 +1,48 @@
 version: 2.1
 
-# Aliases
-
-executor-config: &executor-config
-  machine:
-      image: ubuntu-2004:202111-02
-      docker_layer_caching: true
-  environment:
-    COMPOSE_DOCKER_CLI_BUILD: 1
-    DOCKER_BUILDKIT: 1
-
-commands:
-  set_host_user_ids_environment_variable:
-    description: "Set Docker Compose HOST_USER_IDS environment variable according to the host virtual machine"
-    steps:
-      - run:
-          name: Set Docker Compose HOST_USER_IDS environment variable according to the host virtual machine
-          command: |
-            echo 'export HOST_USER_IDS="$(id -u):$(id -g)"' >> $BASH_ENV
-
-# -----
-
 jobs:
-  tests:
-    <<: *executor-config
-    steps:
-      - checkout
-      - set_host_user_ids_environment_variable
-      - run:
-          name: Build all the Docker images
-          command: |
-            docker login -u $DOCKERHUB_USER -p $DOCKERHUB_PASSWORD
-            make -j build-dev
-      - run:
-          name: Create cache and configuration directories for the back-end dependencies
-          command: |
-            mkdir -p ~/.cache/composer
-            mkdir -p ~/.config/composer
-      - restore_cache:
-          name: Restore the "vendor" directory
-          keys:
-            - vendor-{{ .Environment.CACHE_VERSION }}-{{ checksum "composer.lock" }}
-            - vendor-{{ .Environment.CACHE_VERSION }}-
-      - run:
-          name: Create cache and configuration directories for the front-end dependencies
-          command: |
-            touch ~/.yarnrc
-            mkdir -p ~/.yarn
-            mkdir -p ~/.cache/yarn
-      - restore_cache:
-          name: Restore the "node_modules" directory
-          keys:
-            - node_modules-{{ .Environment.CACHE_VERSION }}-{{ checksum "yarn.lock" }}
-            - node_modules-{{ .Environment.CACHE_VERSION }}-
-      - run:
-          name: Install all dependencies in parallel
-          command: make -j dependencies
-      - save_cache:
-          name: Cache the "vendor" directory
-          key: vendor-{{ .Environment.CACHE_VERSION }}-{{ checksum "composer.lock" }}
-          paths:
-            - vendor
-      - save_cache:
-          name: Cache the "node_modules" directory
-          key: node_modules-{{ .Environment.CACHE_VERSION }}-{{ checksum "yarn.lock" }}
-          paths:
-            - node_modules
-      - run:
-          name: Create the report directory
-          command: mkdir -p reports
-      - run:
-          name: Lint PHP code
-          command: make lint-back-end-code
-      - run:
-          name: Lint CSS code
-          command: make stylelint IO="--custom-formatter 'node_modules/stylelint-junit-formatter' > reports/stylelint.xml"
-      - run:
-          name: Lint TypeScript code
-          command: make eslint IO="--no-fix -f junit > reports/eslint.xml"
-      - run:
-          name: Run back-end static analysis
-          command: make analyse-back-end-code
-      - run:
-          name: Run TypeScript type checking
-          command: make type-check-front-end
-#      - run:
-#          name: Run coupling detector
-#          command: make check-back-end-coupling
-      - run:
-          name: Run back-end unit tests
-          command: make back-end-unit-tests IO="--log-junit reports/unit_tests.xml"
-      - run:
-          name: Run front-end unit tests
-          command: make front-end-unit-tests
-      - run:
-          name: Run "in memory" back-end acceptance tests
-          command: make back-end-acceptance-tests-in-memory IO="-f junit -o reports/acceptance_in_memory"
-      - run:
-          name: Run "in memory" back-end integration tests
-          command: make back-end-integration-tests-with-io IO="-f junit -o reports/integration_in_memory"
-      - run:
-          name: Start PostgreSQL container and update database schema
-          command: make database
-      - run:
-          name: Run back-end acceptance tests with I/O
-          command: make back-end-acceptance-tests-with-io IO="-f junit -o reports/acceptance_with_io"
-      - run:
-          name: Run back-end integration tests with I/O
-          command: make back-end-integration-tests-with-io IO="-f junit -o reports/integration_with_io"
-      - store_test_results:
-          path: reports
-      - store_artifacts:
-          path: reports
-      - store_artifacts:
-          path: var/log
-
-  build:
-    <<: *executor-config
-    steps:
-      - checkout
-      - run:
-          name: Identify on Docker Hub
-          command: docker login --username carcel --password $DOCKER_HUB_TOKEN
-      - run:
-          name: Build the product Docker images and push them to the Docker Hub
-          command: make push-to-prod
+    tests:
+        docker:
+            -   image: cimg/node:current
+                auth:
+                    username: $DOCKERHUB_USER
+                    password: $DOCKERHUB_PASSWORD
+        steps:
+            - checkout
+            -   run:
+                    name: Create cache and configuration directories for the client dependencies
+                    command: |
+                        touch ~/.yarnrc
+                        mkdir ~/.yarn
+                        mkdir -p ~/.cache/yarn
+            -   restore_cache:
+                    keys:
+                        - yarn-{{ .Environment.CACHE_VERSION }}-{{ checksum "yarn.lock" }}
+                        - yarn-{{ .Environment.CACHE_VERSION }}-
+            -   run:
+                    name: Install dependencies
+                    command: make install
+            -   save_cache:
+                    key: yarn-{{ .Environment.CACHE_VERSION }}-{{ checksum "yarn.lock" }}
+                    paths:
+                        - ~/.cache/yarn
+            -   run:
+                    name: Lint the stylesheets
+                    command: make stylelint
+            -   run:
+                    name: Check the code style
+                    command: make prettier
+            -   run:
+                    name: Lint the TS code
+                    command: make eslint
 
 workflows:
-  test_build_and_deploy:
-    jobs:
-      - tests:
-          context:
-            - docker-hub-credentials
-      - build:
-          context:
-            - docker-hub-credentials
-          requires:
-            - tests
-          filters:
-            branches:
-              only:
-                - main
+    pull_request:
+        jobs:
+            -   tests:
+                    context:
+                        - docker-hub-credentials
+                    filters:
+                        branches:
+                            ignore:
+                                - main

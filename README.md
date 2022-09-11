@@ -1,43 +1,62 @@
-# My wish list app
+# Welcome to Remix!
 
-This is my personal wish list application.
+- [Remix Docs](https://remix.run/docs)
+- [Netlify Functions](https://www.netlify.com/products/functions/)
 
-It is composed of two distinct applications:
-- a client application, written in TypeScript with ReactJS,
-- a REST API written in PHP with Symfony.
+## Netlify Setup
 
-## How to use it?
+1. Install the [Netlify CLI](https://www.netlify.com/products/dev/):
 
-### Run the application
-
-To be able to run both the API and the client in production-like mode, you'll first need to install
-[mkcert](https://github.com/FiloSottile/mkcert).
-
-Then you can start the full application using docker by running:
-```bash
-$ mkcert -install
-$ make prod
+```sh
+npm i -g netlify-cli
 ```
 
-The full list of commands is available by running:
-```bash
-$ make
+If you have previously installed the Netlify CLI, you should update it to the latest version:
+
+```sh
+npm i -g netlify-cli@latest
 ```
 
-This will describe how to serve only the API or the client in development mode, how to run the tests, to update the
-dependencies, to debug the API with XDebug, and more.
+2. Sign up and log in to Netlify:
 
-## Using Docker BuildKit
-
-To use the more efficient BuildKit toolkit to build the Docker images, export the following environment variables:
-
-```bash
-COMPOSE_DOCKER_CLI_BUILD=1
-DOCKER_BUILDKIT=1
+```sh
+netlify login
 ```
 
-You can export them directly before running `make prod`, or make them permanent by adding them to your shell profile.
+3. Create a new site:
 
-## License
+```sh
+netlify init
+```
 
-This repository is under the MIT license. See the complete license in the [LICENSE](https://github.com/damien-carcel/wishlist/blob/main/LICENSE) file.
+## Development
+
+The Remix dev server starts your app in development mode, rebuilding assets on file changes. To start the Remix dev server:
+
+```sh
+npm run dev
+```
+
+Open up [http://localhost:3000](http://localhost:3000), and you should be ready to go!
+
+The Netlify CLI builds a production version of your Remix App Server and splits it into Netlify Functions that run locally. This includes any custom Netlify functions you've developed. The Netlify CLI runs all of this in its development mode.
+
+```sh
+netlify dev
+```
+
+Open up [http://localhost:3000](http://localhost:3000), and you should be ready to go!
+
+Note: When running the Netlify CLI, file changes will rebuild assets, but you will not see the changes to the page you are on unless you do a browser refresh of the page. Due to how the Netlify CLI builds the Remix App Server, it does not support hot module reloading.
+
+## Deployment
+
+There are two ways to deploy your app to Netlify, you can either link your app to your git repo and have it auto deploy changes to Netlify, or you can deploy your app manually. If you've followed the setup instructions already, all you need to do is run this:
+
+```sh
+# preview deployment
+netlify deploy --build
+
+# production deployment
+netlify deploy --build --prod
+```
