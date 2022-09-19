@@ -1,48 +1,62 @@
 version: 2.1
+orbs:
+    cypress: cypress-io/cypress@2
 
-jobs:
-    tests:
-        docker:
-            -   image: cimg/node:current
-                auth:
-                    username: $DOCKERHUB_USER
-                    password: $DOCKERHUB_PASSWORD
-        steps:
-            - checkout
-            -   run:
-                    name: Create cache and configuration directories for the client dependencies
-                    command: |
-                        touch ~/.yarnrc
-                        mkdir ~/.yarn
-                        mkdir -p ~/.cache/yarn
-            -   restore_cache:
-                    keys:
-                        - yarn-{{ .Environment.CACHE_VERSION }}-{{ checksum "yarn.lock" }}
-                        - yarn-{{ .Environment.CACHE_VERSION }}-
-            -   run:
-                    name: Install dependencies
-                    command: make install
-            -   save_cache:
-                    key: yarn-{{ .Environment.CACHE_VERSION }}-{{ checksum "yarn.lock" }}
-                    paths:
-                        - ~/.cache/yarn
-            -   run:
-                    name: Lint the stylesheets
-                    command: make stylelint
-            -   run:
-                    name: Check the code style
-                    command: make prettier
-            -   run:
-                    name: Lint the TS code
-                    command: make eslint
+# TODO: Bring back Docker as it will be needed for Cockroach
 
 workflows:
     pull_request:
         jobs:
-            -   tests:
-                    context:
-                        - docker-hub-credentials
-                    filters:
-                        branches:
-                            ignore:
-                                - main
+            - tests:
+                context:
+                    - docker-hub-credentials
+                filters:
+                    branches:
+                        ignore:
+                            - main
+            - cypress/run:
+                context:
+                    - docker-hub-credentials
+                executor: cypress/base-16-17-0
+                yarn: true
+                cache-key: yarn-{{ .Environment.CACHE_VERSION }}-{{ checksum "yarn.lock" }}
+                install-command: yarn install --frozen-lockfile
+                start: yarn start
+                record: true
+                filters:
+                    branches:
+                        ignore:
+                            - main
+
+jobs:
+    tests:
+        docker:
+            -
+                image: cimg/node:current
+                auth:
+                    username: $DOCKERHUB_USER
+                    password: $DOCKERHUB_PASSWORD
+                environment:
+                    TERM: xterm
+        steps:
+            - checkout
+            - restore_cache:
+                keys:
+                    - yarn-{{ .Environment.CACHE_VERSION }}-{{ checksum "yarn.lock" }}
+                    - yarn-{{ .Environment.CACHE_VERSION }}-
+            - run:
+                name: Install dependencies
+                command: make install
+            - save_cache:
+                key: yarn-{{ .Environment.CACHE_VERSION }}-{{ checksum "yarn.lock" }}
+                paths:
+                    - ~/.cache
+            - run:
+                name: Lint the stylesheets
+                command: make stylelint
+            - run:
+                name: Check the code style
+                command: make prettier
+            - run:
+                name: Lint the TS code
+                command: make eslint

@@ -1,4 +1,5 @@
 {
+  "name": "carcel-wishlist",
   "private": true,
   "sideEffects": false,
   "scripts": {
@@ -24,7 +25,9 @@
     "@remix-run/serve": "^1.7.0",
     "@types/react": "^18.0.15",
     "@types/react-dom": "^18.0.6",
+    "cypress": "^10.8.0",
     "eslint": "^8.20.0",
+    "netlify-cli": "^11.8.0",
     "stylelint": "^14.11.0",
     "stylelint-config-prettier": "^9.0.3",
     "stylelint-config-standard": "^28.0.0",

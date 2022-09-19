@@ -1,6 +1,10 @@
 node_modules
 
 /.cache
-/public/build
 /.netlify
+/cypress/videos
+/logs
+/public/build
+
 .env
+netlify.PID
