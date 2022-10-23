@@ -2,6 +2,12 @@ SHELL = bash
 
 IO ?=
 
+ifeq ($(CI),true)
+	YARN = yarn
+else
+	YARN = docker compose run --rm --service-ports node yarn
+endif
+
 .PHONY: help
 help:
 	@echo "-----------------"
@@ -21,48 +27,32 @@ help:
 # Application dependencies
 
 yarn.lock: package.json
-	@yarn install
+	@$(YARN) install
 
 node_modules: yarn.lock
-	@yarn install --frozen-lockfile --check-files
+	@$(YARN) install --frozen-lockfile --check-files
 
 .PHONY: install
 install: node_modules ## Install project dependencies.
 
 .PHONY: update
 update: ## Updates project dependencies to their latest version (works only if project dependencies were already installed).
-	@yarn upgrade-interactive --latest
-	@yarn upgrade
+	@$(YARN) upgrade-interactive --latest
+	@$(YARN) upgrade
 
 # Serve and build-prod
 
 .PHONY: dev
 dev: node_modules #main# Run the application using ViteJS dev server.
-	@yarn dev
+	@$(YARN) dev
 
 .PHONY: build
 build: node_modules #main# Build the production artifacts.
-	@yarn build
-
-netlify.PID:
-	@mkdir -p logs
-	@yarn start > logs/netlify.log & echo $$! > netlify.PID
+	@$(YARN) build
 
 .PHONY: start
 start: node_modules #main# Preview the production build.
-	@make netlify.PID
-	@echo "starting the application in production-like mode."
-
-netlify_pid=$(shell cat ./netlify.PID)
-netlify_pgid=$(strip $(shell ps -o pgid= ${netlify_pid}))
-
-.PHONY: stop
-stop: #main# Stop the preview the production build.
-ifneq ($(wildcard ./netlify.PID),)
-	@echo "Stopping process ${netlify_pid} and its children through their PGID ${netlify_pgid}."
-	@kill -SIGTERM -- -$(netlify_pgid) || true
-	@rm ./netlify.PID
-endif
+	@$(YARN) start
 
 # Tests
 
@@ -79,7 +69,7 @@ tests: node_modules #main# Execute all the tests.
 	@echo "| Check the code style |"
 	@echo "|----------------------|"
 	@echo ""
-	@make prettier CI=true
+	@make prettier
 	@echo ""
 	@echo "|------------------|"
 	@echo "| Lint the TS code |"
@@ -98,24 +88,24 @@ tests: node_modules #main# Execute all the tests.
 
 .PHONY: stylelint
 stylelint: ## Lint the CSS code.
-	@yarn stylelint
+	@$(YARN) stylelint
 
 .PHONY: prettier
-prettier: ## Check the code style. Only warn when run on the CI, apply the needed changes when run locally.
-ifeq ($(CI),true)
-	@yarn prettier --check
-else
-	@yarn prettier --write
-endif
+prettier: ## Check the code style.
+	@$(YARN) prettier --check
+
+.PHONY: fix-prettier
+fix-prettier: ## Fix the code style.
+	@$(YARN) prettier --write
 
 .PHONY: eslint
 eslint: ## Lint the TypeScript code.
-	@yarn eslint
+	@$(YARN) eslint
 
 .PHONY: cypress-open
 cypress-open: ## Open the Cypress app
-	@yarn run cypress open
+	@$(YARN) run cypress open
 
 .PHONY: cypress-open
 cypress-run: ## Run the Cypress end-to-end tests
-	@yarn run cypress run ${IO}
+	@$(YARN) run cypress run ${IO}

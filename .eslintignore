@@ -1,1 +1,4 @@
+.cache
+.netlify
 node_modules
+public/build

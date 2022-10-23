@@ -1,8 +1,4 @@
 version: 2.1
-orbs:
-    cypress: cypress-io/cypress@2
-
-# TODO: Bring back Docker as it will be needed for Cockroach
 
 workflows:
     pull_request:
@@ -10,19 +6,6 @@ workflows:
             - tests:
                 context:
                     - docker-hub-credentials
-                filters:
-                    branches:
-                        ignore:
-                            - main
-            - cypress/run:
-                context:
-                    - docker-hub-credentials
-                executor: cypress/base-16-17-0
-                yarn: true
-                cache-key: yarn-{{ .Environment.CACHE_VERSION }}-{{ checksum "yarn.lock" }}
-                install-command: yarn install --frozen-lockfile
-                start: yarn start
-                record: true
                 filters:
                     branches:
                         ignore:
