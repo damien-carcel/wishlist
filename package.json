@@ -11,27 +11,27 @@
     "stylelint": "stylelint '**/*.css'"
   },
   "dependencies": {
-    "@netlify/functions": "^1.0.0",
-    "@remix-run/netlify": "^1.7.0",
-    "@remix-run/node": "^1.7.0",
-    "@remix-run/react": "^1.7.0",
+    "@netlify/functions": "^1.3.0",
+    "@remix-run/netlify": "^1.7.4",
+    "@remix-run/node": "^1.7.4",
+    "@remix-run/react": "^1.7.4",
     "cross-env": "^7.0.3",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
   },
   "devDependencies": {
-    "@remix-run/dev": "^1.7.0",
-    "@remix-run/eslint-config": "^1.7.0",
-    "@remix-run/serve": "^1.7.0",
-    "@types/react": "^18.0.15",
-    "@types/react-dom": "^18.0.6",
-    "cypress": "^10.8.0",
-    "eslint": "^8.20.0",
-    "netlify-cli": "^11.8.0",
-    "stylelint": "^14.11.0",
+    "@remix-run/dev": "^1.7.4",
+    "@remix-run/eslint-config": "^1.7.4",
+    "@remix-run/serve": "^1.7.4",
+    "@types/react": "^18.0.24",
+    "@types/react-dom": "^18.0.8",
+    "cypress": "^10.11.0",
+    "eslint": "^8.26.0",
+    "netlify-cli": "^12.0.11",
+    "stylelint": "^14.14.0",
     "stylelint-config-prettier": "^9.0.3",
-    "stylelint-config-standard": "^28.0.0",
-    "typescript": "^4.7.4"
+    "stylelint-config-standard": "^29.0.0",
+    "typescript": "^4.8.4"
   },
   "engines": {
     "node": ">=14"

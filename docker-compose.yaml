@@ -1,14 +1,64 @@
 services:
     node:
+        command:
+            -   'yarn'
+            -   'dev'
         environment:
+            CYPRESS_CACHE_FOLDER: '/home/cypress-cache'
             YARN_CACHE_FOLDER: '/home/yarn-cache'
-        image: node:slim
+        image: 'node:18.12.0'
+        networks:
+            - wishlist
         ports:
             - '3000:3000'
-        user: '${HOST_USER_IDS:-1000:1000}'
+        user: '1000:1000'
         volumes:
             - '.:/srv/app'
+            - '${HOST_CYPRESS_CACHE_FOLDER:-~/.cache/Cypress}:/home/cypress-cache'
             - '${HOST_YARN_CACHE_FOLDER:-~/.cache/yarn}:/home/yarn-cache'
             - '${HOST_YARN_CONFIG_FOLDER:-~/.yarn}:/.yarn'
             - '${HOST_YARN_CONFIG_FILE:-~/.yarnrc}:/.yarnrc'
         working_dir: '/srv/app'
+
+    prod:
+        command:
+            -   'yarn'
+            -   'start'
+        environment:
+            CYPRESS_CACHE_FOLDER: '/home/cypress-cache'
+            YARN_CACHE_FOLDER: '/home/yarn-cache'
+        image: 'node:18.12.0'
+        networks:
+            - wishlist
+        ports:
+            - '8000:3000'
+        user: '1000:1000'
+        volumes:
+            - '.:/srv/app'
+            - '${HOST_CYPRESS_CACHE_FOLDER:-~/.cache/Cypress}:/home/cypress-cache'
+            - '${HOST_YARN_CACHE_FOLDER:-~/.cache/yarn}:/home/yarn-cache'
+            - '${HOST_YARN_CONFIG_FOLDER:-~/.yarn}:/.yarn'
+            - '${HOST_YARN_CONFIG_FILE:-~/.yarnrc}:/.yarnrc'
+        working_dir: '/srv/app'
+
+    cypress-browsers:
+        image: 'cypress/browsers'
+        environment:
+            CYPRESS_BASE_URL: 'http://node:3000'
+            CYPRESS_CACHE_FOLDER: '/home/cypress-cache'
+            DISPLAY: '${DISPLAY}'
+            YARN_CACHE_FOLDER: '/home/yarn-cache'
+        networks:
+            - wishlist
+        user: '1000:1000'
+        volumes:
+            - '.:/srv/app'
+            - '${HOST_CYPRESS_CACHE_FOLDER:-~/.cache/Cypress}:/home/cypress-cache'
+            - '${HOST_YARN_CACHE_FOLDER:-~/.cache/yarn}:/home/yarn-cache'
+            - '${HOST_YARN_CONFIG_FOLDER:-~/.yarn}:/.yarn'
+            - '${HOST_YARN_CONFIG_FILE:-~/.yarnrc}:/.yarnrc'
+            - '/tmp/.X11-unix:/tmp/.X11-unix'
+        working_dir: '/srv/app'
+
+networks:
+    wishlist:

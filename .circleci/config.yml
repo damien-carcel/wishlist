@@ -13,27 +13,32 @@ workflows:
 
 jobs:
     tests:
-        docker:
-            -
-                image: cimg/node:current
-                auth:
-                    username: $DOCKERHUB_USER
-                    password: $DOCKERHUB_PASSWORD
-                environment:
-                    TERM: xterm
+        machine:
+            image: ubuntu-2204:2022.10.1
         steps:
             - checkout
+            - run:
+                name: Create cache and configuration directories for the front-end dependencies
+                command: |
+                    touch ~/.yarnrc
+                    mkdir -p ~/.yarn
+                    mkdir -p ~/.cache/yarn
+                    mkdir -p ~/.cache/Cypress
             - restore_cache:
                 keys:
                     - yarn-{{ .Environment.CACHE_VERSION }}-{{ checksum "yarn.lock" }}
                     - yarn-{{ .Environment.CACHE_VERSION }}-
+            - run:
+                name: Ensure write permissions for Docker containers
+                command: sudo chown -R 1000:1000 ../project ~/.yarnrc ~/.yarn ~/.cache/yarn ~/.cache/Cypress
             - run:
                 name: Install dependencies
                 command: make install
             - save_cache:
                 key: yarn-{{ .Environment.CACHE_VERSION }}-{{ checksum "yarn.lock" }}
                 paths:
-                    - ~/.cache
+                    - ~/.cache/Cypress
+                    - ~/.cache/yarn
             - run:
                 name: Lint the stylesheets
                 command: make stylelint
@@ -43,3 +48,11 @@ jobs:
             - run:
                 name: Lint the TS code
                 command: make eslint
+            - run:
+                name: Run the application
+                background: true
+                # TODO: The e2e tests should run against the prod-like app. However, it doesn't work on CircleCI, the server responding a "Not found" error with "text/plain" content type.
+                command: make dev
+            - run:
+                name: Run end-to-end tests
+                command: make cypress-run

@@ -2,11 +2,8 @@ SHELL = bash
 
 IO ?=
 
-ifeq ($(CI),true)
-	YARN = yarn
-else
-	YARN = docker compose run --rm --service-ports node yarn
-endif
+CYPRESS = docker compose run --rm cypress-browsers yarn run cypress
+YARN = docker compose run --rm --service-ports node yarn
 
 .PHONY: help
 help:
@@ -44,15 +41,33 @@ update: ## Updates project dependencies to their latest version (works only if p
 
 .PHONY: dev
 dev: node_modules #main# Run the application using ViteJS dev server.
-	@$(YARN) dev
+	@docker compose up -d node
+	@echo ""
+	@echo "┌─────────────────────────────────────────────────┐"
+	@echo "│                                                 │"
+	@echo "│   ◈ Server now ready on http://localhost:3000   │"
+	@echo "│                                                 │"
+	@echo "└─────────────────────────────────────────────────┘"
+	@echo ""
 
 .PHONY: build
-build: node_modules #main# Build the production artifacts.
+build: node_modules ## Build the production artifacts.
 	@$(YARN) build
 
-.PHONY: start
-start: node_modules #main# Preview the production build.
-	@$(YARN) start
+.PHONY: prod
+prod: #main# Preview the production build. Be sure to first run "make install".
+	@docker compose up -d prod
+	@echo ""
+	@echo "┌─────────────────────────────────────────────────┐"
+	@echo "│                                                 │"
+	@echo "│   ◈ Server now ready on http://localhost:8000   │"
+	@echo "│                                                 │"
+	@echo "└─────────────────────────────────────────────────┘"
+	@echo ""
+
+.PHONY: down
+down: #main# Stop the application (dev or prod preview alike).
+	@docker compose down -v --remove-orphans
 
 # Tests
 
@@ -81,18 +96,26 @@ tests: node_modules #main# Execute all the tests.
 	@echo "| Run end-to-end tests |"
 	@echo "|----------------------|"
 	@echo ""
-	@make start
+	@make dev
 	@make cypress-run
 	@echo ""
-	@echo "All tests successful. You can run \"make stop\" to stop the production-like server."
+	@echo "All tests successful. You can run \"make down\" to stop the application."
 
 .PHONY: stylelint
 stylelint: ## Lint the CSS code.
+ifeq ($(CI),true)
 	@$(YARN) stylelint
+else
+	@$(YARN) stylelint
+endif
 
 .PHONY: prettier
 prettier: ## Check the code style.
+ifeq ($(CI),true)
 	@$(YARN) prettier --check
+else
+	@$(YARN) prettier --check
+endif
 
 .PHONY: fix-prettier
 fix-prettier: ## Fix the code style.
@@ -100,12 +123,20 @@ fix-prettier: ## Fix the code style.
 
 .PHONY: eslint
 eslint: ## Lint the TypeScript code.
+ifeq ($(CI),true)
 	@$(YARN) eslint
+else
+	@$(YARN) eslint
+endif
 
 .PHONY: cypress-open
 cypress-open: ## Open the Cypress app
-	@$(YARN) run cypress open
+	@$(CYPRESS) open
 
-.PHONY: cypress-open
+.PHONY: cypress-run
 cypress-run: ## Run the Cypress end-to-end tests
-	@$(YARN) run cypress run ${IO}
+ifeq ($(CI),true)
+	@$(CYPRESS) run --headless --record --key ${CYPRESS_RECORD_KEY}
+else
+	@$(CYPRESS) run ${IO}
+endif
