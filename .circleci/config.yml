@@ -51,8 +51,7 @@ jobs:
             - run:
                 name: Run the application
                 background: true
-                # TODO: The e2e tests should run against the prod-like app. However, it doesn't work on CircleCI, the server responding a "Not found" error with "text/plain" content type.
-                command: make dev
+                command: make prod
             - run:
                 name: Run end-to-end tests
                 command: make cypress-run

@@ -3,7 +3,7 @@ SHELL = bash
 IO ?=
 
 CYPRESS = docker compose run --rm cypress-browsers yarn run cypress
-YARN = docker compose run --rm --service-ports node yarn
+YARN = docker compose run --rm node yarn
 
 .PHONY: help
 help:
@@ -23,46 +23,62 @@ help:
 
 # Application dependencies
 
-yarn.lock: package.json
-	@$(YARN) install
-
-node_modules: yarn.lock
-	@$(YARN) install --frozen-lockfile --check-files
-
 .PHONY: install
-install: node_modules ## Install project dependencies.
+install: ## Install project dependencies.
+ifeq ($(wildcard yarn.lock),)
+	@echo "Install the Node modules according to package.json"
+	@$(YARN) install
+else
+	@echo "Install the Node modules according to yarn.lock"
+	@$(YARN) install --frozen-lockfile --check-files
+endif
 
-.PHONY: update
-update: ## Updates project dependencies to their latest version (works only if project dependencies were already installed).
+.PHONY: upgrade
+upgrade: ## Upgrade project dependencies to their latest version (works only if project dependencies were already installed with "make install").
 	@$(YARN) upgrade-interactive --latest
 	@$(YARN) upgrade
 
-# Serve and build-prod
+# Run the application
 
-.PHONY: dev
-dev: node_modules #main# Run the application using ViteJS dev server.
-	@docker compose up -d node
-	@echo ""
-	@echo "┌─────────────────────────────────────────────────┐"
-	@echo "│                                                 │"
-	@echo "│   ◈ Server now ready on http://localhost:3000   │"
-	@echo "│                                                 │"
-	@echo "└─────────────────────────────────────────────────┘"
-	@echo ""
+.PHONY: database
+database: ## Start the database
+	@docker compose up -d database
+
+.PHONY: create-migration
+create-migration: ## Create an SQL migration script. Use as follows: "make create-migration IO='my migration name'".
+	@$(YARN) run migrate create ${IO}
+
+.PHONY: migrate
+migrate: install ## Run the SQL migration scriptss.
+	@$(YARN) run migrate up
 
 .PHONY: build
-build: node_modules ## Build the production artifacts.
+build: install ## Build the production artifacts.
 	@$(YARN) build
 
+.PHONY: dev
+dev: install database #main# Run the application using ViteJS dev server.
+	@make migrate
+	@docker compose up -d dev
+	@echo ""
+	@echo "┌────────────────────────────────────────────--─────┐"
+	@echo "│                                                   │"
+	@echo "│   ◈ Server now ready on http://localhost:3000 ◈   │"
+	@echo "│                                                   │"
+	@echo "└─────────────────────────────────────────────--────┘"
+	@echo ""
+
+
 .PHONY: prod
-prod: #main# Preview the production build. Be sure to first run "make install".
+prod: install database #main# Preview the production build. Be sure to first run "make install".
+	@make migrate
 	@docker compose up -d prod
 	@echo ""
-	@echo "┌─────────────────────────────────────────────────┐"
-	@echo "│                                                 │"
-	@echo "│   ◈ Server now ready on http://localhost:8000   │"
-	@echo "│                                                 │"
-	@echo "└─────────────────────────────────────────────────┘"
+	@echo "┌─────────────────────────────────────────────--────┐"
+	@echo "│                                                   │"
+	@echo "│   ◈ Server now ready on http://localhost:8000 ◈   │"
+	@echo "│                                                   │"
+	@echo "└─────────────────────────────────────────────--────┘"
 	@echo ""
 
 .PHONY: down
@@ -72,7 +88,7 @@ down: #main# Stop the application (dev or prod preview alike).
 # Tests
 
 .PHONY: tests
-tests: node_modules #main# Execute all the tests.
+tests: install #main# Execute all the tests.
 	@echo ""
 	@echo "|----------------------|"
 	@echo "| Lint the stylesheets |"
@@ -96,7 +112,7 @@ tests: node_modules #main# Execute all the tests.
 	@echo "| Run end-to-end tests |"
 	@echo "|----------------------|"
 	@echo ""
-	@make dev
+	@make prod
 	@make cypress-run
 	@echo ""
 	@echo "All tests successful. You can run \"make down\" to stop the application."
@@ -111,11 +127,7 @@ endif
 
 .PHONY: prettier
 prettier: ## Check the code style.
-ifeq ($(CI),true)
 	@$(YARN) prettier --check
-else
-	@$(YARN) prettier --check
-endif
 
 .PHONY: fix-prettier
 fix-prettier: ## Fix the code style.
@@ -130,11 +142,11 @@ else
 endif
 
 .PHONY: cypress-open
-cypress-open: ## Open the Cypress app
+cypress-open: ## Open the Cypress app.
 	@$(CYPRESS) open
 
 .PHONY: cypress-run
-cypress-run: ## Run the Cypress end-to-end tests
+cypress-run: ## Run the Cypress end-to-end tests.
 ifeq ($(CI),true)
 	@$(CYPRESS) run --headless --record --key ${CYPRESS_RECORD_KEY}
 else

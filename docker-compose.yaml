@@ -1,12 +1,34 @@
+x-database-env-variables: &database-env-variables
+    DATABASE_URL: 'postgresql://root@database:26257/defaultdb?sslmode=disable'
+
+x-cache-env-variables: &cache-env-variables
+    CYPRESS_CACHE_FOLDER: '/home/cypress-cache'
+    YARN_CACHE_FOLDER: '/home/yarn-cache'
+
 services:
     node:
+        environment:
+            <<: *cache-env-variables
+            <<: *database-env-variables
+        image: 'node:lts'
+        networks:
+            - wishlist
+        user: '1000:1000'
+        volumes:
+            - '.:/srv/app'
+            - '${HOST_CYPRESS_CACHE_FOLDER:-~/.cache/Cypress}:/home/cypress-cache'
+            - '${HOST_YARN_CACHE_FOLDER:-~/.cache/yarn}:/home/yarn-cache'
+            - '${HOST_YARN_CONFIG_FOLDER:-~/.yarn}:/.yarn'
+            - '${HOST_YARN_CONFIG_FILE:-~/.yarnrc}:/.yarnrc'
+        working_dir: '/srv/app'
+
+    dev:
         command:
             -   'yarn'
             -   'dev'
         environment:
-            CYPRESS_CACHE_FOLDER: '/home/cypress-cache'
-            YARN_CACHE_FOLDER: '/home/yarn-cache'
-        image: 'node:18.12.0'
+            <<: *database-env-variables
+        image: 'node:lts'
         networks:
             - wishlist
         ports:
@@ -14,10 +36,6 @@ services:
         user: '1000:1000'
         volumes:
             - '.:/srv/app'
-            - '${HOST_CYPRESS_CACHE_FOLDER:-~/.cache/Cypress}:/home/cypress-cache'
-            - '${HOST_YARN_CACHE_FOLDER:-~/.cache/yarn}:/home/yarn-cache'
-            - '${HOST_YARN_CONFIG_FOLDER:-~/.yarn}:/.yarn'
-            - '${HOST_YARN_CONFIG_FILE:-~/.yarnrc}:/.yarnrc'
         working_dir: '/srv/app'
 
     prod:
@@ -25,9 +43,8 @@ services:
             -   'yarn'
             -   'start'
         environment:
-            CYPRESS_CACHE_FOLDER: '/home/cypress-cache'
-            YARN_CACHE_FOLDER: '/home/yarn-cache'
-        image: 'node:18.12.0'
+            <<: *database-env-variables
+        image: 'node:lts'
         networks:
             - wishlist
         ports:
@@ -35,19 +52,14 @@ services:
         user: '1000:1000'
         volumes:
             - '.:/srv/app'
-            - '${HOST_CYPRESS_CACHE_FOLDER:-~/.cache/Cypress}:/home/cypress-cache'
-            - '${HOST_YARN_CACHE_FOLDER:-~/.cache/yarn}:/home/yarn-cache'
-            - '${HOST_YARN_CONFIG_FOLDER:-~/.yarn}:/.yarn'
-            - '${HOST_YARN_CONFIG_FILE:-~/.yarnrc}:/.yarnrc'
         working_dir: '/srv/app'
 
     cypress-browsers:
-        image: 'cypress/browsers'
+        image: 'cypress/browsers:node18.12.0-chrome103-ff107'
         environment:
-            CYPRESS_BASE_URL: 'http://node:3000'
-            CYPRESS_CACHE_FOLDER: '/home/cypress-cache'
+            <<: *cache-env-variables
+            CYPRESS_BASE_URL: 'http://prod:3000'
             DISPLAY: '${DISPLAY}'
-            YARN_CACHE_FOLDER: '/home/yarn-cache'
         networks:
             - wishlist
         user: '1000:1000'
@@ -59,6 +71,15 @@ services:
             - '${HOST_YARN_CONFIG_FILE:-~/.yarnrc}:/.yarnrc'
             - '/tmp/.X11-unix:/tmp/.X11-unix'
         working_dir: '/srv/app'
+
+    database:
+        command: 'start-single-node --insecure --store=type=mem,size=0.25 --advertise-addr=localhost'
+        image: 'cockroachdb/cockroach'
+        ports:
+            - '26257:26257'
+            - '8080:8080'
+        networks:
+            - wishlist
 
 networks:
     wishlist:
