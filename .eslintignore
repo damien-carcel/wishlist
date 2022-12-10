@@ -1,0 +1,6 @@
+.cache
+.netlify
+/netlify/
+/node_modules
+/public/build
+/server/build

@@ -1,137 +1,85 @@
-version: '3.4'
+x-database-env-variables: &database-env-variables
+    DATABASE_URL: 'postgresql://root@database:26257/defaultdb?sslmode=disable'
+
+x-cache-env-variables: &cache-env-variables
+    CYPRESS_CACHE_FOLDER: '/home/cypress-cache'
+    YARN_CACHE_FOLDER: '/home/yarn-cache'
 
 services:
-  node:
-    environment:
-      YARN_CACHE_FOLDER: '/home/yarn-cache'
-    image: 'node:slim'
-    user: '${HOST_USER_IDS:-1000:1000}'
-    volumes:
-      - '.:/srv/app'
-      - '${HOST_YARN_CACHE_FOLDER:-~/.cache/yarn}:/home/yarn-cache'
-      - '${HOST_YARN_CONFIG_FOLDER:-~/.yarn}:/.yarn'
-      - '${HOST_YARN_CONFIG_FILE:-~/.yarnrc}:/.yarnrc'
-    working_dir: '/srv/app'
+    node:
+        environment:
+            <<: *cache-env-variables
+            <<: *database-env-variables
+        image: 'node:lts'
+        networks:
+            - wishlist
+        user: '1000:1000'
+        volumes:
+            - '.:/srv/app'
+            - '${HOST_CYPRESS_CACHE_FOLDER:-~/.cache/Cypress}:/home/cypress-cache'
+            - '${HOST_YARN_CACHE_FOLDER:-~/.cache/yarn}:/home/yarn-cache'
+            - '${HOST_YARN_CONFIG_FOLDER:-~/.yarn}:/.yarn'
+            - '${HOST_YARN_CONFIG_FILE:-~/.yarnrc}:/.yarnrc'
+        working_dir: '/srv/app'
 
-  encore:
-    command: 'yarn watch'
-    image: 'node:slim'
-    tty: true
-    user: '${HOST_USER_IDS:-1000:1000}'
-    volumes:
-      - '.:/srv/app'
-    working_dir: '/srv/app'
+    dev:
+        command:
+            -   'yarn'
+            -   'dev'
+        environment:
+            <<: *database-env-variables
+        image: 'node:lts'
+        networks:
+            - wishlist
+        ports:
+            - '3000:3000'
+        user: '1000:1000'
+        volumes:
+            - '.:/srv/app'
+        working_dir: '/srv/app'
 
-  php:
-    build:
-      context: '.'
-      target: 'dev'
-    environment:
-      COMPOSER_CACHE_DIR: '/home/composer/.cache/composer'
-      COMPOSER_HOME: '/home/composer/.config/composer'
-      PHP_CONF_DISPLAY_ERRORS: 1
-      PHP_CONF_DISPLAY_STARTUP_ERRORS: 1
-      PHP_CONF_ERROR_REPORTING: 32767
-      PHP_CONF_OPCACHE_VALIDATE_TIMESTAMP: 1
-      PHP_CONF_ZEND_ASSERTIONS: 1
-      PHP_IDE_CONFIG: 'serverName=wishlist'
-      XDEBUG_CONFIG: 'client_host=172.17.0.1'
-      XDEBUG_MODE: '${XDEBUG_MODE:-off}'
-    image: 'carcel/wishlist:dev'
-    user: '${HOST_USER_IDS:-1000:1000}'
-    volumes:
-      - '.:/srv/app:rw'
-      - '${HOST_COMPOSER_CACHE_DIR:-~/.cache/composer}:/home/composer/.cache/composer'
-      - '${HOST_COMPOSER_HOME:-~/.config/composer}:/home/composer/.config/composer'
-    working_dir: '/srv/app'
+    prod:
+        command:
+            -   'yarn'
+            -   'start'
+        environment:
+            <<: *database-env-variables
+        image: 'node:lts'
+        networks:
+            - wishlist
+        ports:
+            - '8000:3000'
+        user: '1000:1000'
+        volumes:
+            - '.:/srv/app'
+        working_dir: '/srv/app'
 
-  dev:
-    build:
-      context: '.'
-      target: 'dev'
-    command: 'php -S 0.0.0.0:8000'
-    depends_on:
-      - database
-      - encore
-      - traefik
-    environment:
-      PHP_CONF_DISPLAY_ERRORS: 1
-      PHP_CONF_DISPLAY_STARTUP_ERRORS: 1
-      PHP_CONF_ERROR_REPORTING: 32767
-      PHP_CONF_OPCACHE_VALIDATE_TIMESTAMP: 1
-      PHP_CONF_ZEND_ASSERTIONS: 1
-      PHP_IDE_CONFIG: 'serverName=wishlist'
-      XDEBUG_CONFIG: 'client_host=172.17.0.1'
-      XDEBUG_MODE: '${XDEBUG_MODE:-off}'
-    expose:
-      - '8000'
-    image: 'carcel/wishlist:dev'
-    labels:
-      - 'traefik.enable=true'
-      - 'traefik.http.routers.api-dev.entrypoints=web'
-      - 'traefik.http.routers.api-dev.rule=Host(`wishlist.docker.localhost`)'
-      - 'traefik.http.routers.api-dev.rule=PathPrefix(`/`)'
-    ports:
-      - '${API_DEV_OUTPUT:-8000}:8000'
-    user: '${HOST_USER_IDS:-1000:1000}'
-    volumes:
-      - '.:/srv/app:rw'
-    working_dir: '/srv/app/public'
+    cypress-browsers:
+        image: 'cypress/browsers:node18.12.0-chrome103-ff107'
+        environment:
+            <<: *cache-env-variables
+            CYPRESS_BASE_URL: 'http://dev:3000'
+            DISPLAY: '${DISPLAY}'
+        networks:
+            - wishlist
+        user: '1000:1000'
+        volumes:
+            - '.:/srv/app'
+            - '${HOST_CYPRESS_CACHE_FOLDER:-~/.cache/Cypress}:/home/cypress-cache'
+            - '${HOST_YARN_CACHE_FOLDER:-~/.cache/yarn}:/home/yarn-cache'
+            - '${HOST_YARN_CONFIG_FOLDER:-~/.yarn}:/.yarn'
+            - '${HOST_YARN_CONFIG_FILE:-~/.yarnrc}:/.yarnrc'
+            - '/tmp/.X11-unix:/tmp/.X11-unix'
+        working_dir: '/srv/app'
 
-  database:
-    environment:
-      POSTGRES_DB: '${PGSQL_DB:-wishlist}'
-      POSTGRES_USER: '${PGSQL_USERNAME:-wishlist}'
-      POSTGRES_PASSWORD: '${PGSQL_PASSWORD:-wishlist}'
-    image: 'postgres:13'
-    ports:
-      - '54032:5432'
-    restart: on-failure
+    database:
+        command: 'start-single-node --insecure --store=type=mem,size=0.25 --advertise-addr=localhost'
+        image: 'cockroachdb/cockroach'
+        ports:
+            - '26257:26257'
+            - '8080:8080'
+        networks:
+            - wishlist
 
-  fpm:
-    build:
-      context: '.'
-      target: 'fpm'
-    command: 'php-fpm -F'
-    depends_on:
-      - database
-    environment:
-      APP_ENV: 'prod'
-      APP_DEBUG: 0
-    image: 'carcel/wishlist:fpm'
-    restart: on-failure
-    volumes:
-      - 'app-public:/var/www/html/public'
-
-  nginx:
-    depends_on:
-      - fpm
-      - traefik
-    image: 'nginx:alpine'
-    labels:
-      - 'traefik.enable=true'
-      - 'traefik.http.routers.api.entrypoints=websecure'
-      - 'traefik.http.routers.api.rule=Host(`wishlist.docker.localhost`)'
-      - 'traefik.http.routers.api.rule=PathPrefix(`/`)'
-      - 'traefik.http.routers.api.tls=true'
-    restart: on-failure
-    volumes:
-      - './docker/nginx/default.conf:/etc/nginx/conf.d/default.conf'
-      - './docker/nginx/upload.conf:/etc/nginx/conf.d/upload.conf'
-      - 'app-public:/var/www/html/public'
-
-  traefik:
-    image: 'traefik'
-    ports:
-      - '${WISHLIST_WEB_HTTP_PORT:-80}:80'
-      - '${WISHLIST_WEB_HTTPS_PORT:-443}:443'
-      - '${WISHLIST_TRAEFIK_ADMIN_PORT:-8080}:8080'
-    restart: on-failure
-    volumes:
-      - '/var/run/docker.sock:/var/run/docker.sock'
-      - './traefik/dynamic:/etc/traefik/dynamic:ro'
-      - './traefik/ssl:/etc/traefik/ssl:ro'
-      - './traefik/traefik.yaml:/etc/traefik/traefik.yaml:ro'
-
-volumes:
-  app-public:
+networks:
+    wishlist:
