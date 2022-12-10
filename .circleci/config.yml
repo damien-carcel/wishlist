@@ -46,12 +46,14 @@ jobs:
                 name: Check the code style
                 command: make prettier
             - run:
+                name: Check the typing
+                command: make typecheck
+            - run:
                 name: Lint the TS code
                 command: make eslint
             - run:
                 name: Run the application
-                background: true
-                command: make prod
+                command: make dev
             - run:
                 name: Run end-to-end tests
-                command: make cypress-run
+                command: make cypress-run IO="--record --key ${CYPRESS_RECORD_KEY}"

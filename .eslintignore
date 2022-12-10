@@ -1,4 +1,6 @@
 .cache
 .netlify
-node_modules
-public/build
+/netlify/
+/node_modules
+/public/build
+/server/build

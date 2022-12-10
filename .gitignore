@@ -1,10 +1,10 @@
 node_modules
+.env
 
+/app/styles/tailwind.css
+/netlify/functions/server/index.js
 /.cache
 /.netlify
 /cypress/videos
 /logs
 /public/build
-
-.env
-netlify.PID

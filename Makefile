@@ -103,6 +103,12 @@ tests: install #main# Execute all the tests.
 	@make prettier
 	@echo ""
 	@echo "|------------------|"
+	@echo "| Check the typing |"
+	@echo "|------------------|"
+	@echo ""
+	@make typecheck
+	@echo ""
+	@echo "|------------------|"
 	@echo "| Lint the TS code |"
 	@echo "|------------------|"
 	@echo ""
@@ -112,7 +118,7 @@ tests: install #main# Execute all the tests.
 	@echo "| Run end-to-end tests |"
 	@echo "|----------------------|"
 	@echo ""
-	@make prod
+	@make dev
 	@make cypress-run
 	@echo ""
 	@echo "All tests successful. You can run \"make down\" to stop the application."
@@ -133,6 +139,10 @@ prettier: ## Check the code style.
 fix-prettier: ## Fix the code style.
 	@$(YARN) prettier --write
 
+.PHONY: typecheck
+typecheck: ## Check the typing.
+	@$(YARN) typecheck
+
 .PHONY: eslint
 eslint: ## Lint the TypeScript code.
 ifeq ($(CI),true)
@@ -147,8 +157,4 @@ cypress-open: ## Open the Cypress app.
 
 .PHONY: cypress-run
 cypress-run: ## Run the Cypress end-to-end tests.
-ifeq ($(CI),true)
-	@$(CYPRESS) run --headless --record --key ${CYPRESS_RECORD_KEY}
-else
-	@$(CYPRESS) run ${IO}
-endif
+	@$(CYPRESS) run --headless ${IO}
