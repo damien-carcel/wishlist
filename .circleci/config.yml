@@ -1,59 +1,55 @@
 version: 2.1
 
 workflows:
-    pull_request:
-        jobs:
-            - tests:
-                context:
-                    - docker-hub-credentials
-                filters:
-                    branches:
-                        ignore:
-                            - main
+  pull_request:
+    jobs:
+      - tests:
+          context:
+            - docker-hub-credentials
+          filters:
+            branches:
+              ignore:
+                - main
 
 jobs:
-    tests:
-        machine:
-            image: ubuntu-2204:2022.10.1
-        steps:
-            - checkout
-            - run:
-                name: Create cache and configuration directories for the front-end dependencies
-                command: |
-                    touch ~/.yarnrc
-                    mkdir -p ~/.yarn
-                    mkdir -p ~/.cache/yarn
-                    mkdir -p ~/.cache/Cypress
-            - restore_cache:
-                keys:
-                    - yarn-{{ .Environment.CACHE_VERSION }}-{{ checksum "yarn.lock" }}
-                    - yarn-{{ .Environment.CACHE_VERSION }}-
-            - run:
-                name: Ensure write permissions for Docker containers
-                command: sudo chown -R 1000:1000 ../project ~/.yarnrc ~/.yarn ~/.cache/yarn ~/.cache/Cypress
-            - run:
-                name: Install dependencies
-                command: make install
-            - save_cache:
-                key: yarn-{{ .Environment.CACHE_VERSION }}-{{ checksum "yarn.lock" }}
-                paths:
-                    - ~/.cache/Cypress
-                    - ~/.cache/yarn
-            - run:
-                name: Lint the stylesheets
-                command: make stylelint
-            - run:
-                name: Check the code style
-                command: make prettier
-            - run:
-                name: Check the typing
-                command: make typecheck
-            - run:
-                name: Lint the TS code
-                command: make eslint
-            - run:
-                name: Run the application
-                command: make dev
-            - run:
-                name: Run end-to-end tests
-                command: make cypress-run IO="--record --key ${CYPRESS_RECORD_KEY}"
+  tests:
+    machine:
+      image: ubuntu-2204:2022.10.1
+    steps:
+      - checkout
+      - run:
+          name: Create cache and configuration directories for the front-end dependencies
+          command: make yarn-config-and-cache
+      - restore_cache:
+          keys:
+            - yarn-{{ .Environment.CACHE_VERSION }}-{{ checksum "yarn.lock" }}
+            - yarn-{{ .Environment.CACHE_VERSION }}-
+      - run:
+          name: Ensure write permissions for Docker containers
+          command: sudo chown -R 1000:1000 ../project ~/.yarnrc ~/.config/yarn ~/.cache/yarn ~/.cache/Cypress
+      - run:
+          name: Install dependencies
+          command: make install
+      - save_cache:
+          key: yarn-{{ .Environment.CACHE_VERSION }}-{{ checksum "yarn.lock" }}
+          paths:
+            - ~/.cache/Cypress
+            - ~/.cache/yarn
+      - run:
+          name: Lint the stylesheets
+          command: make stylelint
+      - run:
+          name: Check the code style
+          command: make prettier
+      - run:
+          name: Check the typing
+          command: make typecheck
+      - run:
+          name: Lint the TS code
+          command: make eslint
+      - run:
+          name: Run the application
+          command: make dev
+      - run:
+          name: Run end-to-end tests
+          command: make cypress-run IO="--record --key ${CYPRESS_RECORD_KEY}"

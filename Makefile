@@ -23,8 +23,23 @@ help:
 
 # Application dependencies
 
+~/.yarnrc:
+	touch ~/.yarnrc
+
+~/.config/yarn:
+	mkdir -p ~/.config/yarn
+
+~/.cache/yarn:
+	mkdir -p ~/.cache/yarn
+
+~/.cache/Cypress:
+	mkdir -p ~/.cache/Cypress
+
+.PHONY: yarn-config-and-cache
+yarn-config-and-cache: ~/.yarnrc ~/.config/yarn ~/.cache/yarn ~/.cache/Cypress
+
 .PHONY: install
-install: ## Install project dependencies.
+install: yarn-config-and-cache ## Install project dependencies.
 ifeq ($(wildcard yarn.lock),)
 	@echo "Install the Node modules according to package.json"
 	@$(YARN) install
@@ -34,7 +49,7 @@ else
 endif
 
 .PHONY: upgrade
-upgrade: ## Upgrade project dependencies to their latest version (works only if project dependencies were already installed with "make install").
+upgrade: yarn-config-and-cache ## Upgrade project dependencies to their latest version (works only if project dependencies were already installed with "make install").
 	@$(YARN) upgrade
 	@$(YARN) upgrade-interactive --latest
 	@$(YARN) upgrade
