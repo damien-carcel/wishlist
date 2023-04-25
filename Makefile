@@ -38,6 +38,10 @@ help:
 .PHONY: yarn-config-and-cache
 yarn-config-and-cache: ~/.yarnrc ~/.config/yarn ~/.cache/yarn ~/.cache/Cypress
 
+.PHONY: pull
+pull: ## Pull all Docker images.
+	docker compose pull
+
 .PHONY: install
 install: yarn-config-and-cache ## Install project dependencies.
 ifeq ($(wildcard yarn.lock),)
@@ -146,6 +150,10 @@ ifeq ($(CI),true)
 else
 	@$(YARN) stylelint
 endif
+
+.PHONY: fix-stylelint
+fix-stylelint: ## Fix the CSS code style.
+	@$(YARN) stylelint --fix
 
 .PHONY: prettier
 prettier: ## Check the code style.
