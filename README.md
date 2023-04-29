@@ -1,27 +1,19 @@
-# Next.js + Cypress
+# My Wishlist App
 
-This example shows how to configure Cypress to work with Next.js.
+This is my personal Wishlist application, written with [Next.js](https://nextjs.org/).
 
-## Deploy your own
+## Dependencies
 
-Deploy the example using [Vercel](https://vercel.com?utm_source=github&utm_medium=readme&utm_campaign=next-example) or preview live with [StackBlitz](https://stackblitz.com/github/vercel/next.js/tree/canary/examples/with-cypress)
+- Docker
+- Docker Compose v2
+- Make
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/vercel/next.js/tree/canary/examples/with-cypress&project-name=with-cypress&repository-name=with-cypress)
+## How To Use
 
-## How to use
+- ```bash
+  $ make
+  ```
 
-Execute [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app) with [npm](https://docs.npmjs.com/cli/init), [Yarn](https://yarnpkg.com/lang/en/docs/cli/create/), or [pnpm](https://pnpm.io) to bootstrap the example:
+## License
 
-```bash
-npx create-next-app --example with-cypress with-cypress-app
-```
-
-```bash
-yarn create next-app --example with-cypress with-cypress-app
-```
-
-```bash
-pnpm create next-app --example with-cypress with-cypress-app
-```
-
-Deploy it to the cloud with [Vercel](https://vercel.com/new?utm_source=github&utm_medium=readme&utm_campaign=next-example) ([Documentation](https://nextjs.org/docs/deployment)).
+This repository is under the MIT license. See the complete license in the [LICENSE](./LICENSE) file.
