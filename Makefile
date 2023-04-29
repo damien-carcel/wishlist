@@ -52,6 +52,10 @@ else
 	@$(YARN) install --frozen-lockfile --check-files
 endif
 
+.PHONY: cypress-install
+cypress-install: yarn-config-and-cache ## Install Cypress binary.
+	@$(YARN) cypress install
+
 .PHONY: upgrade
 upgrade: yarn-config-and-cache ## Upgrade project dependencies to their latest version (works only if project dependencies were already installed with "make install").
 	@$(YARN) upgrade

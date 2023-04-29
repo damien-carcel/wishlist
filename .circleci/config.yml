@@ -29,7 +29,9 @@ jobs:
           command: sudo chown -R 1000:1000 ../project ~/.yarnrc ~/.config/yarn ~/.cache/yarn ~/.cache/Cypress
       - run:
           name: Install dependencies
-          command: make install
+          command: |
+            make install
+            make cypress-install
       - save_cache:
           key: yarn-{{ .Environment.CACHE_VERSION }}-{{ checksum "yarn.lock" }}
           paths:
