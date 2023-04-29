@@ -110,17 +110,23 @@ down: #main# Stop the application (dev or prod preview alike).
 .PHONY: tests
 tests: install #main# Execute all the tests.
 	@echo ""
+	@echo "|-----------------------|"
+	@echo "| Check the code format |"
+	@echo "|-----------------------|"
+	@echo ""
+	@make check-format
+	@echo ""
+	@echo ""
 	@echo "|----------------------|"
 	@echo "| Lint the stylesheets |"
 	@echo "|----------------------|"
 	@echo ""
-	@make stylelint
+	@make lint-css
+	@echo "|------------------|"
+	@echo "| Lint the TS code |"
+	@echo "|------------------|"
 	@echo ""
-	@echo "|----------------------|"
-	@echo "| Check the code style |"
-	@echo "|----------------------|"
-	@echo ""
-	@make prettier
+	@make lint-js
 	@echo ""
 	@echo "|------------------|"
 	@echo "| Check the typing |"
@@ -128,11 +134,17 @@ tests: install #main# Execute all the tests.
 	@echo ""
 	@make typecheck
 	@echo ""
-	@echo "|------------------|"
-	@echo "| Lint the TS code |"
-	@echo "|------------------|"
+	@echo "|----------------|"
+	@echo "| Run unit tests |"
+	@echo "|----------------|"
 	@echo ""
-	@make eslint
+	@make unit-tests CI=true
+	@echo ""
+	@echo "|---------------------|"
+	@echo "| Run component tests |"
+	@echo "|---------------------|"
+	@echo ""
+	@make component-tests CI=true
 	@echo ""
 	@echo "|----------------------|"
 	@echo "| Run end-to-end tests |"
@@ -140,46 +152,54 @@ tests: install #main# Execute all the tests.
 	@echo ""
 	@make database
 	@make migrate
-	@make cypress-run
+	@make e2e-tests CI=true
 	@echo ""
 	@echo "All tests successful. You can run \"make down\" to stop the application."
 
-.PHONY: stylelint
-stylelint: ## Lint the CSS code.
-ifeq ($(CI),true)
-	@$(YARN) stylelint
-else
-	@$(YARN) stylelint
-endif
-
-.PHONY: fix-stylelint
-fix-stylelint: ## Fix the CSS code style.
-	@$(YARN) stylelint --fix
-
-.PHONY: prettier
-prettier: ## Check the code style.
+.PHONY: check-format
+check-format: ## Check the code format.
 	@$(YARN) prettier --check
 
-.PHONY: fix-prettier
-fix-prettier: ## Fix the code style.
+.PHONY: fix-format
+fix-format: ## Fix the code format.
 	@$(YARN) prettier --write
+
+.PHONY: lint-css
+lint-css: ## Lint the CSS code.
+	@$(YARN) lint:css
+
+.PHONY: fix-css
+fix-css: ## Fix the CSS code style.
+	@$(YARN) lint:css --fix
+
+.PHONY: lint-js
+lint-js: ## Lint the TypeScript code.
+	@$(YARN) lint:js
 
 .PHONY: typecheck
 typecheck: ## Check the typing.
 	@$(YARN) typecheck
 
-.PHONY: eslint
-eslint: ## Lint the TypeScript code.
+.PHONY: unit-tests
+unit-tests: ## Check the typing.
 ifeq ($(CI),true)
-	@$(YARN) eslint
+	@$(YARN) unit:ci --passWithNoTests
 else
-	@$(YARN) eslint
+	@$(YARN) unit:watch
 endif
 
-.PHONY: cypress-open
-cypress-open: ## Open the Cypress app.
-	@$(YARN_CYPRESS) e2e
+.PHONY: component-tests
+component-tests: ## Run the Cypress end-to-end tests.
+ifeq ($(CI),true)
+	@$(YARN_CYPRESS) component:headless
+else
+	@$(YARN_CYPRESS) component
+endif
 
-.PHONY: cypress-run
-cypress-run: ## Run the Cypress end-to-end tests.
-	@$(YARN_CYPRESS) e2e:headless ${IO}
+.PHONY: e2e-tests
+e2e-tests: ## Open the Cypress app.
+ifeq ($(CI),true)
+	@$(YARN_CYPRESS) e2e:headless
+else
+	@$(YARN_CYPRESS) e2e
+endif
