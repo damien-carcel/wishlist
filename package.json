@@ -4,6 +4,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
+    "migrate": "node-pg-migrate",
     "e2e": "start-server-and-test dev http://localhost:3000 \"cypress open --e2e\"",
     "e2e:headless": "start-server-and-test dev http://localhost:3000 \"cypress run --e2e\"",
     "component": "cypress open --component",
@@ -15,6 +16,8 @@
   },
   "dependencies": {
     "next": "latest",
+    "node-pg-migrate": "^6.2.2",
+    "pg": "^8.10.0",
     "react": "18.2.0",
     "react-dom": "18.2.0"
   },

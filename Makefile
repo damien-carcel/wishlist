@@ -138,7 +138,8 @@ tests: install #main# Execute all the tests.
 	@echo "| Run end-to-end tests |"
 	@echo "|----------------------|"
 	@echo ""
-	@make dev
+	@make database
+	@make migrate
 	@make cypress-run
 	@echo ""
 	@echo "All tests successful. You can run \"make down\" to stop the application."
