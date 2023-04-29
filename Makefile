@@ -122,9 +122,9 @@ tests: install #main# Execute all the tests.
 	@echo "|----------------------|"
 	@echo ""
 	@make lint-css
-	@echo "|------------------|"
-	@echo "| Lint the TS code |"
-	@echo "|------------------|"
+	@echo "|-------------------|"
+	@echo "| Lint the app code |"
+	@echo "|-------------------|"
 	@echo ""
 	@make lint-js
 	@echo ""
@@ -176,6 +176,10 @@ fix-css: ## Fix the CSS code style.
 lint-js: ## Lint the TypeScript code.
 	@$(YARN) lint:js
 
+.PHONY: fix-js
+fix-js: ## Fix the TypeScript code.
+	@$(YARN) lint:js --fix
+
 .PHONY: typecheck
 typecheck: ## Check the typing.
 	@$(YARN) typecheck
@@ -183,7 +187,7 @@ typecheck: ## Check the typing.
 .PHONY: unit-tests
 unit-tests: ## Check the typing.
 ifeq ($(CI),true)
-	@$(YARN) unit:ci --passWithNoTests
+	@$(YARN) unit:ci ${IO}
 else
 	@$(YARN) unit:watch
 endif
@@ -191,7 +195,7 @@ endif
 .PHONY: component-tests
 component-tests: ## Run the Cypress end-to-end tests.
 ifeq ($(CI),true)
-	@$(YARN_CYPRESS) component:headless
+	@$(YARN_CYPRESS) component:headless ${IO}
 else
 	@$(YARN_CYPRESS) component
 endif
@@ -199,7 +203,7 @@ endif
 .PHONY: e2e-tests
 e2e-tests: ## Open the Cypress app.
 ifeq ($(CI),true)
-	@$(YARN_CYPRESS) e2e:headless
+	@$(YARN_CYPRESS) e2e:headless ${IO}
 else
 	@$(YARN_CYPRESS) e2e
 endif
