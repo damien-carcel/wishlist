@@ -1,0 +1,11 @@
+.cache
+.netlify
+.next
+/netlify
+/node_modules
+/public
+
+.env
+preferences.arc
+sam.json
+sam.yaml
