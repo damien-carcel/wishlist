@@ -54,7 +54,7 @@ jobs:
           command: make unit-tests
       - run:
           name: Run component tests
-          command: make component-tests IO="--record --key ${CYPRESS_RECORD_KEY}"
+          command: make component-tests
       - run:
           name: Run end-to-end tests
-          command: make e2e-tests IO="--record --key ${CYPRESS_RECORD_KEY}"
+          command: make e2e-tests

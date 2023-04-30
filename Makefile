@@ -191,7 +191,7 @@ typecheck: ## Check the typing.
 .PHONY: unit-tests
 unit-tests: ## Check the typing.
 ifeq ($(CI),true)
-	@$(YARN) unit:ci ${IO}
+	@$(YARN) unit:ci
 else
 	@$(YARN) unit:watch
 endif
@@ -199,7 +199,7 @@ endif
 .PHONY: component-tests
 component-tests: ## Run the Cypress end-to-end tests.
 ifeq ($(CI),true)
-	@$(YARN_CYPRESS) component:headless ${IO}
+	@$(YARN_CYPRESS) component:headless
 else
 	@$(YARN_CYPRESS) component
 endif
@@ -207,7 +207,7 @@ endif
 .PHONY: e2e-tests
 e2e-tests: ## Open the Cypress app.
 ifeq ($(CI),true)
-	@$(YARN_CYPRESS) e2e:headless ${IO}
+	@$(YARN_CYPRESS) e2e:headless
 else
 	@$(YARN_CYPRESS) e2e
 endif
