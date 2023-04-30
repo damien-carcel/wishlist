@@ -18,6 +18,9 @@ jobs:
     steps:
       - checkout
       - run:
+          name: Pull Docker images
+          command: make pull
+      - run:
           name: Create cache and configuration directories for the front-end dependencies
           command: make yarn-config-and-cache
       - restore_cache:
