@@ -1,12 +1,11 @@
-node_modules
+.cache
+.netlify
+.next
+/netlify
+/node_modules
+/public
 
-/server/build
-/public/build
+.env
 preferences.arc
 sam.json
 sam.yaml
-.env
-
-/app/styles/tailwind.css
-
-/netlify/functions/server

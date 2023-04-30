@@ -57,7 +57,7 @@ services:
     image: 'cypress/browsers:node-18.16.0-chrome-112.0.5615.121-1-ff-112.0.1-edge-112.0.1722.48-1'
     environment:
       <<: *cache-env-variables
-      CYPRESS_BASE_URL: 'http://dev:3000'
+      CYPRESS_RECORD_KEY: '${CYPRESS_RECORD_KEY}'
       DISPLAY: '${DISPLAY}'
     networks:
       - wishlist

@@ -1,11 +1,11 @@
 # My Wishlist App
 
-This is my personal Wishlist application, written with [Remix](https://remix.run/).
+This is my personal Wishlist application, written with [Next.js](https://nextjs.org/).
 
 ## Dependencies
 
-- Node.js 16+
-- Yarn classic (v1)
+- Docker
+- Docker Compose v2
 - Make
 
 ## How To Use

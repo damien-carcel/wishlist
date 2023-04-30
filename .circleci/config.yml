@@ -18,6 +18,9 @@ jobs:
     steps:
       - checkout
       - run:
+          name: Pull Docker images
+          command: make pull
+      - run:
           name: Create cache and configuration directories for the front-end dependencies
           command: make yarn-config-and-cache
       - restore_cache:
@@ -29,27 +32,32 @@ jobs:
           command: sudo chown -R 1000:1000 ../project ~/.yarnrc ~/.config/yarn ~/.cache/yarn ~/.cache/Cypress
       - run:
           name: Install dependencies
-          command: make install
+          command: |
+            make install
+            make cypress-install
       - save_cache:
           key: yarn-{{ .Environment.CACHE_VERSION }}-{{ checksum "yarn.lock" }}
           paths:
-            - ~/.cache/Cypress
-            - ~/.cache/yarn
+            - ./node_modules
+            - ./.next/cache
+      - run:
+          name: Check the code format
+          command: make check-format
       - run:
           name: Lint the stylesheets
-          command: make stylelint
+          command: make lint-css
       - run:
-          name: Check the code style
-          command: make prettier
+          name: Lint the application code
+          command: make lint-js
       - run:
           name: Check the typing
           command: make typecheck
       - run:
-          name: Lint the TS code
-          command: make eslint
+          name: Run unit tests
+          command: make unit-tests
       - run:
-          name: Run the application
-          command: make dev
+          name: Run component tests
+          command: make component-tests
       - run:
           name: Run end-to-end tests
-          command: make cypress-run IO="--record --key ${CYPRESS_RECORD_KEY}"
+          command: make e2e-tests
