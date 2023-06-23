@@ -43,7 +43,7 @@ services:
       - 'start'
     environment:
       <<: *database-env-variables
-    image: 'node:lts'
+    image: 'node:18'
     networks:
       - wishlist
     ports:
