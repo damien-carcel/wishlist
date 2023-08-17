@@ -1,8 +1,5 @@
 version: '3'
 
-# TODO: Install should require setup
-# TODO: All run and tests steps should check for the dependencies to be installed
-
 silent: true
 
 includes:
