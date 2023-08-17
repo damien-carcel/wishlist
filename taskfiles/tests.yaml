@@ -1,0 +1,139 @@
+version: '3'
+
+includes:
+  run:
+    taskfile: ./run.yaml
+    internal: true
+
+tasks:
+  check-code-style:
+    desc: Check the code style.
+    cmds:
+      - docker compose run --rm node yarn prettier --check
+    aliases: [cs]
+
+  fix-code-style:
+    desc: Fix the code style.
+    cmds:
+      - docker compose run --rm node yarn prettier --write
+    aliases: [fcs]
+
+  lint-css:
+    desc: Lint the stylesheets.
+    cmds:
+      - docker compose run --rm node yarn lint:css
+    aliases: [s]
+
+  fix-css:
+    desc: Fix the stylesheets.
+    cmds:
+      - docker compose run --rm node yarn lint:css --fix
+    aliases: [fs]
+
+  lint-ts:
+    desc: Lint the application code.
+    cmds:
+      - docker compose run --rm node yarn lint:js {{.CLI_ARGS}}
+    aliases: [l]
+
+  fix-ts:
+    desc: Fix the application code.
+    cmds:
+      - docker compose run --rm node yarn lint:js --fix
+    aliases: [f]
+
+  check-types:
+    desc: Check the code typing.
+    cmds:
+      - docker compose run --rm node yarn typecheck
+    aliases: [t]
+
+  unit-tests:
+    desc: Run unit tests.
+    cmds:
+      - docker compose run --rm node yarn unit:ci {{.CLI_ARGS}}
+    aliases: [u]
+
+  unit-tests-watch:
+    desc: Run unit tests in watch mode.
+    cmds:
+      - docker compose run --rm node yarn unit:watch
+    aliases: [uw]
+
+  component-tests:
+    desc: Run the Cypress component tests.
+    cmds:
+      - docker compose run --rm cypress-browsers yarn component
+    aliases: [c]
+
+  component-tests-headless:
+    desc: Run the Cypress component tests in headless mode.
+    cmds:
+      - docker compose run --rm cypress-browsers yarn component:headless {{.CLI_ARGS}}
+    aliases: [ch]
+
+  e2e-tests:
+    desc: Run the Cypress end-to-end tests.
+    cmds:
+      - docker compose run --rm cypress-browsers yarn e2e
+    aliases: [e2e]
+
+  e2e-tests-headless:
+    desc: Run the Cypress end-to-end tests in headless mode.
+    cmds:
+      - docker compose run --rm cypress-browsers yarn e2e:headless {{.CLI_ARGS}}
+    aliases: [e2eh]
+
+  all:
+    desc: Execute all the tests.
+    cmds:
+      - echo ""
+      - echo "|----------------------|"
+      - echo "| Check the code style |"
+      - echo "|----------------------|"
+      - echo ""
+      - task: check-code-style
+      - echo ""
+      - echo "|----------------------|"
+      - echo "| Lint the stylesheets |"
+      - echo "|----------------------|"
+      - echo ""
+      - task: lint-css
+      - echo ""
+      - echo "|---------------------------|"
+      - echo "| Lint the application code |"
+      - echo "|---------------------------|"
+      - echo ""
+      - task: lint-ts
+      - echo ""
+      - echo "|-----------------------|"
+      - echo "| Check the code typing |"
+      - echo "|-----------------------|"
+      - echo ""
+      - task: check-types
+      - echo ""
+      - echo "|----------------|"
+      - echo "| Run unit tests |"
+      - echo "|----------------|"
+      - echo ""
+      - task: unit-tests
+      - echo ""
+      - echo "|---------------------------------|"
+      - echo "| Run the Cypress component tests |"
+      - echo "|---------------------------------|"
+      - echo ""
+      - task: component-tests-headless
+      - echo ""
+      - echo "|----------------------------------|"
+      - echo "| Run the Cypress end-to-end tests |"
+      - echo "|----------------------------------|"
+      - echo ""
+      - task: run:database
+      - task: run:migrate
+      - task: e2e-tests-headless
+      - echo ""
+      - echo "|------------------------------------------------------------------------------|"
+      - echo "| All tests successful. You can run \"task run:down\" to stop the application. |"
+      - echo "|------------------------------------------------------------------------------|"
+      - echo ""
+    aliases: [a]
