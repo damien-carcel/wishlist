@@ -9,6 +9,8 @@ services:
   node:
     environment:
       <<: [ *cache-env-variables, *database-env-variables ]
+      JEST_JUNIT_OUTPUT_DIR: ${JEST_JUNIT_OUTPUT_DIR:-}
+      JEST_JUNIT_OUTPUT_NAME: ${JEST_JUNIT_OUTPUT_NAME:-result.xml}
     image: 'node:18'
     networks:
       - wishlist

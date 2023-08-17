@@ -1,7 +1,5 @@
 version: '3'
 
-# TODO: Add JUNIT outputs for CI.
-
 includes:
   run:
     taskfile: ./run.yaml
@@ -35,7 +33,7 @@ tasks:
   lint-ts:
     desc: Lint the application code.
     cmds:
-      - docker compose run --rm node yarn lint:js
+      - docker compose run --rm node yarn lint:js {{.CLI_ARGS}}
     aliases: [l]
 
   fix-ts:
@@ -53,7 +51,7 @@ tasks:
   unit-tests:
     desc: Run unit tests.
     cmds:
-      - docker compose run --rm node yarn unit:ci
+      - docker compose run --rm node yarn unit:ci {{.CLI_ARGS}}
     aliases: [u]
 
   unit-tests-watch:
@@ -71,7 +69,7 @@ tasks:
   component-tests-headless:
     desc: Run the Cypress component tests in headless mode.
     cmds:
-      - docker compose run --rm cypress-browsers yarn component:headless
+      - docker compose run --rm cypress-browsers yarn component:headless {{.CLI_ARGS}}
     aliases: [ch]
 
   e2e-tests:
@@ -83,7 +81,7 @@ tasks:
   e2e-tests-headless:
     desc: Run the Cypress end-to-end tests in headless mode.
     cmds:
-      - docker compose run --rm cypress-browsers yarn e2e:headless
+      - docker compose run --rm cypress-browsers yarn e2e:headless {{.CLI_ARGS}}
     aliases: [e2eh]
 
   all:
