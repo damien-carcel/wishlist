@@ -1,0 +1,35 @@
+version: '3'
+
+tasks:
+  yarnrc:
+    cmds:
+      - touch ~/.yarnrc
+    status:
+      - test -f ~/.yarnrc
+
+  yarn-cache:
+    cmds:
+      - mkdir -p ~/.cache/yarn
+    status:
+      - test -d ~/.cache/yarn
+
+  yarn-config:
+    cmds:
+      - mkdir -p ~/.config/yarn
+    status:
+      - test -d ~/.config/yarn
+
+  cypress-cache:
+    cmds:
+      - mkdir -p ~/.cache/Cypress
+    status:
+      - test -d ~/.cache/Cypress
+
+  yarn:
+    desc: Generate if needed Yarn cache and configuration files and directories on the host.
+    deps:
+      - yarnrc
+      - yarn-cache
+      - yarn-config
+      - cypress-cache
+    aliases: [y]

@@ -14,15 +14,18 @@ workflows:
 jobs:
   tests:
     machine:
-      image: ubuntu-2204:2023.04.2
+      image: ubuntu-2204:2023.07.2
     steps:
       - checkout
       - run:
+          name: Install the latest Task binary
+          command: npm install -g @go-task/cli
+      - run:
           name: Pull Docker images
-          command: make pull
+          command: task docker:pull
       - run:
           name: Create cache and configuration directories for the front-end dependencies
-          command: make yarn-config-and-cache
+          command: task setup:yarn
       - restore_cache:
           keys:
             - yarn-{{ .Environment.CACHE_VERSION }}-{{ checksum "yarn.lock" }}
@@ -33,31 +36,34 @@ jobs:
       - run:
           name: Install dependencies
           command: |
-            make install
-            make cypress-install
+            task dependencies:install
+            task dependencies:cypress
       - save_cache:
           key: yarn-{{ .Environment.CACHE_VERSION }}-{{ checksum "yarn.lock" }}
           paths:
             - ./node_modules
             - ./.next/cache
       - run:
-          name: Check the code format
-          command: make check-format
+          name: Check the code style
+          command: task tests:check-code-style
       - run:
           name: Lint the stylesheets
-          command: make lint-css
+          command: task tests:lint-css
       - run:
           name: Lint the application code
-          command: make lint-js
+          command: task tests:lint-ts
       - run:
-          name: Check the typing
-          command: make typecheck
+          name: Check the code typing
+          command: task tests:check-types
       - run:
           name: Run unit tests
-          command: make unit-tests
+          command: task tests:unit-tests
       - run:
           name: Run component tests
-          command: make component-tests
+          command: task tests:component-tests-headless
       - run:
           name: Run end-to-end tests
-          command: make e2e-tests
+          command: |
+            task run:database
+            task run:migrate
+            task tests:e2e-tests-headless
