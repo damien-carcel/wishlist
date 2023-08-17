@@ -12,8 +12,8 @@
     "unit:watch": "jest --watch",
     "unit:ci": "jest --ci",
     "lint:js": "next lint",
-    "prettier": "prettier '**/*.{ts,tsx}'",
     "lint:css": "stylelint '**/*.css'",
+    "prettier": "prettier '**/*.{ts,tsx}'",
     "typecheck": "tsc -b"
   },
   "dependencies": {
