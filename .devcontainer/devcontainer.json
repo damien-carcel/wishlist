@@ -1,0 +1,24 @@
+{
+  "dockerComposeFile": ["../compose.yaml"],
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "CircleCI.circleci",
+        "dbaeumer.vscode-eslint",
+        "eamodio.gitlens",
+        "esbenp.prettier-vscode",
+        "github.vscode-github-actions",
+        "ms-azuretools.vscode-docker",
+        "redhat.vscode-yaml",
+        "task.vscode-task",
+        "yzhang.markdown-all-in-one"
+      ]
+    }
+  },
+  "initializeCommand": "task dependencies:install",
+  "name": "Wishlist",
+  "runServices": ["dev", "prod"],
+  "remoteUser": "node",
+  "service": "node",
+  "workspaceFolder": "/srv/app"
+}
