@@ -6,13 +6,17 @@ This is my personal Wishlist application, written with [Next.js](https://nextjs.
 
 - Docker
 - Docker Compose v2
-- Make
+- Task
 
 ## How To Use
 
+The full list of actions can be accessed by running the following command in your usual terminal:
+
 - ```bash
-  $ make
+  $ task
   ```
+
+Optionally, if using VS Code, accept to open the project in Dev Containers when prompted.
 
 ## License
 
