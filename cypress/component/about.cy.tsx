@@ -3,20 +3,13 @@
 // If you're using ESLint on your project, we recommend installing the ESLint Cypress plugin instead:
 // https://github.com/cypress-io/eslint-plugin-cypress
 
-import About from '../../pages/about';
+import Home from '@/app/page';
 
-// Cypress Component Test
-describe('<AboutPage />', () => {
+describe('<Home />', () => {
   it('should render and display expected content', () => {
-    // Mount the React component for the About page
-    cy.mount(<About />);
+    cy.mount(<Home />);
 
-    // The new page should contain an h1 with "About page"
-    cy.get('h1').contains('About Page');
-
-    // Validate that a link with the expected URL is present
-    // *Following* the link is better suited to an E2E test
-    cy.get('a[href="/"]').should('be.visible');
+    cy.get('h1').contains('Get started by editing&nbsp;src/app/page.tsx');
   });
 });
 
