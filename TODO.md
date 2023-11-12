@@ -1,1 +1,0 @@
-- Configure Jest to be able to write tests in TypeScript
