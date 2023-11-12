@@ -27,14 +27,3 @@ tasks:
       - sh: test -d node_modules
         msg: Cannot upgrade the dependencies if they are not already installed.
     aliases: [u]
-
-  cypress:
-    desc: Install the Cypress binary.
-    cmds:
-      - docker compose run --rm node yarn cypress install
-    preconditions:
-      - sh: test -f yarn.lock
-        msg: Cannot install the Cypress binary if there is no "yarn.lock" file.
-      - sh: test -d node_modules
-        msg: Cannot install the Cypress binary if dependencies are not already installed.
-    aliases: [c]

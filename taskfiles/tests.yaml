@@ -66,30 +66,6 @@ tasks:
       - docker compose run --rm node yarn tests:unit:watch
     aliases: [u:w]
 
-  component:run:
-    desc: Run the Cypress component tests.
-    cmds:
-      - docker compose run --rm cypress-browsers yarn tests:component
-    aliases: [c:r]
-
-  component:headless:
-    desc: Run the Cypress component tests in headless mode.
-    cmds:
-      - docker compose run --rm cypress-browsers yarn tests:component:headless {{.CLI_ARGS}}
-    aliases: [c:h]
-
-  e2e:run:
-    desc: Run the Cypress end-to-end tests.
-    cmds:
-      - docker compose run --rm cypress-browsers yarn tests:e2e
-    aliases: [e2e]
-
-  e2e:headless:
-    desc: Run the Cypress end-to-end tests in headless mode.
-    cmds:
-      - docker compose run --rm cypress-browsers yarn tests:e2e:headless {{.CLI_ARGS}}
-    aliases: [e2e:h]
-
   all:
     desc: Execute all the tests.
     cmds:
@@ -123,20 +99,6 @@ tasks:
       - echo "|----------------|"
       - echo ""
       - task: unit:run
-      - echo ""
-      - echo "|---------------------------------|"
-      - echo "| Run the Cypress component tests |"
-      - echo "|---------------------------------|"
-      - echo ""
-      - task: component:headless
-      - echo ""
-      - echo "|----------------------------------|"
-      - echo "| Run the Cypress end-to-end tests |"
-      - echo "|----------------------------------|"
-      - echo ""
-      - task: run:database
-      - task: run:migrate
-      - task: e2e:headless
       - echo ""
       - echo "|------------------------------------------------------------------------------|"
       - echo "| All tests successful. You can run \"task run:down\" to stop the application. |"

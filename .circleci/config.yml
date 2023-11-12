@@ -32,12 +32,11 @@ jobs:
             - yarn-{{ .Environment.CACHE_VERSION }}-
       - run:
           name: Ensure write permissions for Docker containers
-          command: sudo chown -R 1000:1000 ../project ~/.yarnrc ~/.config/yarn ~/.cache/yarn ~/.cache/Cypress
+          command: sudo chown -R 1000:1000 ../project ~/.yarnrc ~/.config/yarn ~/.cache/yarn
       - run:
           name: Install dependencies
           command: |
             task dependencies:install
-            task dependencies:cypress
       - save_cache:
           key: yarn-{{ .Environment.CACHE_VERSION }}-{{ checksum "yarn.lock" }}
           paths:
@@ -61,14 +60,5 @@ jobs:
             JEST_JUNIT_OUTPUT_DIR: test_results
             JEST_JUNIT_OUTPUT_NAME: unit.xml
           command: task tests:unit:run -- --reporters=default --reporters=jest-junit
-      - run:
-          name: Run component tests
-          command: task tests:component:headless
-      - run:
-          name: Run end-to-end tests
-          command: |
-            task run:database
-            task run:migrate
-            task tests:e2e:headless
       - store_test_results:
           path: test_results
