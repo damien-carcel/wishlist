@@ -11,6 +11,8 @@ services:
     environment:
       <<: *database-env-variables
     image: node:18
+    networks:
+      - dev
     ports:
       - 3000:3000
     user: 1000:1000
@@ -20,13 +22,18 @@ services:
 
   prod:
     command:
-      - yarn
-      - start
+      - /bin/bash
+      - -c
+      - |
+        yarn build
+        yarn start
     depends_on:
       - database
     environment:
       <<: *database-env-variables
     image: node:18
+    networks:
+      - prod
     ports:
       - 8000:3000
     user: 1000:1000
@@ -41,6 +48,13 @@ services:
       - '--store=type=mem,size=0.25'
       - '--advertise-addr=localhost'
     image: cockroachdb/cockroach
+    networks:
+      - dev
+      - prod
     ports:
       - 26257:26257
       - 8080:8080
+
+networks:
+  dev:
+  prod:
