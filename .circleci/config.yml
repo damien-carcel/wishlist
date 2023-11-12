@@ -13,26 +13,20 @@ workflows:
 
 jobs:
   tests:
-    machine:
-      image: ubuntu-2204:2023.07.2
+    docker:
+      - image: node:18
     steps:
       - checkout
       - run:
+          name: Create Yarn cache and configuration directories and files
+          command: ./.devcontainer/setup.sh
+      - run:
           name: Install the latest Task binary
           command: npm install -g @go-task/cli
-      - run:
-          name: Pull Docker images
-          command: task docker:pull
-      - run:
-          name: Create cache and configuration directories for the front-end dependencies
-          command: task setup:yarn
       - restore_cache:
           keys:
             - yarn-{{ .Environment.CACHE_VERSION }}-{{ checksum "yarn.lock" }}
             - yarn-{{ .Environment.CACHE_VERSION }}-
-      - run:
-          name: Ensure write permissions for Docker containers
-          command: sudo chown -R 1000:1000 ../project ~/.yarnrc ~/.config/yarn ~/.cache/yarn
       - run:
           name: Install dependencies
           command: |

@@ -1,69 +1,64 @@
 version: '3'
 
-includes:
-  run:
-    taskfile: ./run.yaml
-    internal: true
-
 tasks:
   static:prettier:check:
     desc: Check the code style.
     cmds:
-      - docker compose run --rm node yarn tests:prettier --check
+      - yarn tests:prettier --check
     aliases: [p:c]
 
   static:prettier:fix:
     desc: Fix the code style.
     cmds:
-      - docker compose run --rm node yarn tests:prettier --write
+      - yarn tests:prettier --write
     aliases: [p:f]
 
   static:css:lint:
     desc: Lint the stylesheets.
     cmds:
-      - docker compose run --rm node yarn tests:lint:css
+      - yarn tests:lint:css
     aliases: [c:l]
 
   static:css:fix:
     desc: Fix the stylesheets.
     cmds:
-      - docker compose run --rm node yarn tests:lint:css --fix
+      - yarn tests:lint:css --fix
     aliases: [c:f]
 
   static:ts:lint:
     desc: Lint the application code.
     cmds:
-      - docker compose run --rm node yarn tests:lint:js {{.CLI_ARGS}}
+      - yarn tests:lint:js {{.CLI_ARGS}}
     aliases: [t:l]
 
   static:ts:fix:
     desc: Fix the application code.
     cmds:
-      - docker compose run --rm node yarn tests:lint:js --fix
+      - yarn tests:lint:js --fix
     aliases: [t:f]
 
   static:types:check:
     desc: Check the code typing.
     cmds:
-      - docker compose run --rm node yarn tests:typecheck
+      - yarn tests:typecheck
     aliases: [t:c]
 
   unit:run:
     desc: Run unit tests.
     cmds:
-      - docker compose run --rm node yarn tests:unit:ci {{.CLI_ARGS}}
+      - yarn tests:unit:ci {{.CLI_ARGS}}
     aliases: [u:r]
 
   unit:update-snapshots:
     desc: Run unit tests.
     cmds:
-      - docker compose run --rm node yarn tests:unit:ci -u
+      - yarn tests:unit:ci -u
     aliases: [u:u]
 
   unit:watch:
     desc: Run unit tests in watch mode.
     cmds:
-      - docker compose run --rm node yarn tests:unit:watch
+      - yarn tests:unit:watch
     aliases: [u:w]
 
   all:

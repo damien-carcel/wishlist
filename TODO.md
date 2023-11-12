@@ -1,2 +1,1 @@
-- Run the tasks directly in Dev Containers? Is it possible without Docker in Docker?
 - Configure Jest to be able to write tests in TypeScript

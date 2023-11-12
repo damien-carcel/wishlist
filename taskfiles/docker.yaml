@@ -1,8 +1,0 @@
-version: 3
-
-tasks:
-  pull:
-    desc: Pull Docker images (you can specify only a selection of compose services to pull through CLI arguments).
-    cmds:
-      - docker compose pull {{.CLI_ARGS}}
-    aliases: [p]
