@@ -45,30 +45,30 @@ jobs:
             - ./.next/cache
       - run:
           name: Check the code style
-          command: task tests:check-code-style
+          command: task tests:static:prettier:check
       - run:
           name: Lint the stylesheets
-          command: task tests:lint-css
+          command: task tests:static:css:lint
       - run:
           name: Lint the application code
-          command: task tests:lint-ts -- --format junit -o test_results/eslint.xml
+          command: task tests:static:ts:lint -- --format junit -o test_results/eslint.xml
       - run:
           name: Check the code typing
-          command: task tests:check-types
+          command: task tests:static:types:check
       - run:
           name: Run unit tests
           environment:
             JEST_JUNIT_OUTPUT_DIR: test_results
             JEST_JUNIT_OUTPUT_NAME: unit.xml
-          command: task tests:unit-tests -- --reporters=default --reporters=jest-junit
+          command: task tests:unit:run -- --reporters=default --reporters=jest-junit
       - run:
           name: Run component tests
-          command: task tests:component-tests-headless
+          command: task tests:component:headless
       - run:
           name: Run end-to-end tests
           command: |
             task run:database
             task run:migrate
-            task tests:e2e-tests-headless
+            task tests:e2e:headless
       - store_test_results:
           path: test_results

@@ -6,83 +6,89 @@ includes:
     internal: true
 
 tasks:
-  check-code-style:
+  static:prettier:check:
     desc: Check the code style.
     cmds:
-      - docker compose run --rm node yarn prettier --check
-    aliases: [cs]
+      - docker compose run --rm node yarn tests:prettier --check
+    aliases: [p:c]
 
-  fix-code-style:
+  static:prettier:fix:
     desc: Fix the code style.
     cmds:
-      - docker compose run --rm node yarn prettier --write
-    aliases: [fcs]
+      - docker compose run --rm node yarn tests:prettier --write
+    aliases: [p:f]
 
-  lint-css:
+  static:css:lint:
     desc: Lint the stylesheets.
     cmds:
-      - docker compose run --rm node yarn lint:css
-    aliases: [s]
+      - docker compose run --rm node yarn tests:lint:css
+    aliases: [c:l]
 
-  fix-css:
+  static:css:fix:
     desc: Fix the stylesheets.
     cmds:
-      - docker compose run --rm node yarn lint:css --fix
-    aliases: [fs]
+      - docker compose run --rm node yarn tests:lint:css --fix
+    aliases: [c:f]
 
-  lint-ts:
+  static:ts:lint:
     desc: Lint the application code.
     cmds:
-      - docker compose run --rm node yarn lint:js {{.CLI_ARGS}}
-    aliases: [l]
+      - docker compose run --rm node yarn tests:lint:js {{.CLI_ARGS}}
+    aliases: [t:l]
 
-  fix-ts:
+  static:ts:fix:
     desc: Fix the application code.
     cmds:
-      - docker compose run --rm node yarn lint:js --fix
-    aliases: [f]
+      - docker compose run --rm node yarn tests:lint:js --fix
+    aliases: [t:f]
 
-  check-types:
+  static:types:check:
     desc: Check the code typing.
     cmds:
-      - docker compose run --rm node yarn typecheck
-    aliases: [t]
+      - docker compose run --rm node yarn tests:typecheck
+    aliases: [t:c]
 
-  unit-tests:
+  unit:run:
     desc: Run unit tests.
     cmds:
-      - docker compose run --rm node yarn unit:ci {{.CLI_ARGS}}
-    aliases: [u]
+      - docker compose run --rm node yarn tests:unit:ci {{.CLI_ARGS}}
+    aliases: [u:r]
 
-  unit-tests-watch:
+  unit:update-snapshots:
+    desc: Run unit tests.
+    cmds:
+      - docker compose run --rm node yarn tests:unit:ci -u
+    aliases: [u:u]
+
+  unit:watch:
     desc: Run unit tests in watch mode.
     cmds:
-      - docker compose run --rm node yarn unit:watch
-    aliases: [uw]
+      - docker compose run --rm node yarn tests:unit:watch
+    aliases: [u:w]
 
-  component-tests:
+  component:run:
     desc: Run the Cypress component tests.
     cmds:
-      - docker compose run --rm cypress-browsers yarn component
-    aliases: [c]
+      - docker compose run --rm cypress-browsers yarn tests:component
+    aliases: [c:r]
 
-  component-tests-headless:
+  component:headless:
     desc: Run the Cypress component tests in headless mode.
     cmds:
-      - docker compose run --rm cypress-browsers yarn component:headless {{.CLI_ARGS}}
-    aliases: [ch]
+      - docker compose run --rm cypress-browsers yarn tests:component:headless {{.CLI_ARGS}}
+    aliases: [c:h]
 
-  e2e-tests:
+  e2e:run:
     desc: Run the Cypress end-to-end tests.
     cmds:
-      - docker compose run --rm cypress-browsers yarn e2e
+      - docker compose run --rm cypress-browsers yarn tests:e2e
     aliases: [e2e]
 
-  e2e-tests-headless:
+  e2e:headless:
     desc: Run the Cypress end-to-end tests in headless mode.
     cmds:
-      - docker compose run --rm cypress-browsers yarn e2e:headless {{.CLI_ARGS}}
-    aliases: [e2eh]
+      - docker compose run --rm cypress-browsers yarn tests:e2e:headless {{.CLI_ARGS}}
+    aliases: [e2e:h]
 
   all:
     desc: Execute all the tests.
@@ -92,37 +98,37 @@ tasks:
       - echo "| Check the code style |"
       - echo "|----------------------|"
       - echo ""
-      - task: check-code-style
+      - task: static:prettier:check
       - echo ""
       - echo "|----------------------|"
       - echo "| Lint the stylesheets |"
       - echo "|----------------------|"
       - echo ""
-      - task: lint-css
+      - task: static:css:lint
       - echo ""
       - echo "|---------------------------|"
       - echo "| Lint the application code |"
       - echo "|---------------------------|"
       - echo ""
-      - task: lint-ts
+      - task: static:ts:lint
       - echo ""
       - echo "|-----------------------|"
       - echo "| Check the code typing |"
       - echo "|-----------------------|"
       - echo ""
-      - task: check-types
+      - task: static:types:check
       - echo ""
       - echo "|----------------|"
       - echo "| Run unit tests |"
       - echo "|----------------|"
       - echo ""
-      - task: unit-tests
+      - task: unit:run
       - echo ""
       - echo "|---------------------------------|"
       - echo "| Run the Cypress component tests |"
       - echo "|---------------------------------|"
       - echo ""
-      - task: component-tests-headless
+      - task: component:headless
       - echo ""
       - echo "|----------------------------------|"
       - echo "| Run the Cypress end-to-end tests |"
@@ -130,7 +136,7 @@ tasks:
       - echo ""
       - task: run:database
       - task: run:migrate
-      - task: e2e-tests-headless
+      - task: e2e:headless
       - echo ""
       - echo "|------------------------------------------------------------------------------|"
       - echo "| All tests successful. You can run \"task run:down\" to stop the application. |"
