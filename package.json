@@ -5,16 +5,13 @@
     "build": "next build",
     "start": "next start",
     "migrate": "node-pg-migrate",
-    "e2e": "start-server-and-test dev http://localhost:3000 \"cypress open --e2e\"",
-    "e2e:headless": "start-server-and-test dev http://localhost:3000 \"cypress run --e2e --record\"",
-    "component": "cypress open --component",
-    "component:headless": "cypress run --component --record",
-    "unit:watch": "jest --watch",
-    "unit:ci": "jest --ci",
-    "lint:js": "next lint",
-    "lint:css": "stylelint '**/*.css'",
-    "prettier": "prettier '**/*.{ts,tsx}'",
-    "typecheck": "tsc -b"
+    "tests:lint:css": "stylelint '**/*.css'",
+    "tests:lint:js": "next lint",
+    "tests:prettier": "prettier '**/*.{ts,tsx}'",
+    "tests:typecheck": "tsc -b",
+    "tests:unit:ci": "jest --ci",
+    "tests:unit:update-snapshots": "jest --jest --updateSnapshot",
+    "tests:unit:watch": "jest --watch"
   },
   "engines": {
     "node": ">=18.0.0 <19.0.0"
@@ -29,10 +26,11 @@
   "devDependencies": {
     "@testing-library/jest-dom": "^6.0.0",
     "@testing-library/react": "^14.0.0",
+    "@testing-library/user-event": "^14.5.1",
+    "@types/jest": "^29.5.8",
     "@types/node": "^20.8.6",
     "@types/react": "^18.2.20",
     "@types/react-dom": "^18.2.7",
-    "cypress": "^13.3.1",
     "eslint": "^8.47.0",
     "eslint-config-next": "^14.0.1",
     "eslint-config-prettier": "^9.0.0",
@@ -42,7 +40,6 @@
     "prettier": "^3.0.2",
     "start-server-and-test": "^2.0.0",
     "stylelint": "^15.10.1",
-    "stylelint-config-prettier": "^9.0.5",
     "stylelint-config-standard": "^34.0.0",
     "typescript": "^5.1.6"
   }

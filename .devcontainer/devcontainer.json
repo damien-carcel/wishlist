@@ -1,5 +1,5 @@
 {
-  "dockerComposeFile": ["../compose.yaml"],
+  "dockerComposeFile": ["../compose.yaml", "./compose.yaml"],
   "customizations": {
     "vscode": {
       "extensions": [
@@ -15,10 +15,11 @@
       ]
     }
   },
-  "initializeCommand": "task dependencies:install",
+  "initializeCommand": "./.devcontainer/setup.sh",
   "name": "Wishlist",
+  "postCreateCommand": "task dependencies:install",
   "runServices": ["dev", "prod"],
   "remoteUser": "node",
-  "service": "node",
+  "service": "devcontainer",
   "workspaceFolder": "/srv/app"
 }

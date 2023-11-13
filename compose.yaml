@@ -1,29 +1,7 @@
-x-cache-env-variables: &cache-env-variables
-  CYPRESS_CACHE_FOLDER: /home/cypress-cache
-  YARN_CACHE_FOLDER: /home/yarn-cache
-
 x-database-env-variables: &database-env-variables
   DATABASE_URL: postgresql://root@database:26257/defaultdb?sslmode=disable
 
 services:
-  node:
-    command:
-      - sleep
-      - infinity
-    environment:
-      <<: [*cache-env-variables, *database-env-variables]
-      JEST_JUNIT_OUTPUT_DIR: ${JEST_JUNIT_OUTPUT_DIR:-}
-      JEST_JUNIT_OUTPUT_NAME: ${JEST_JUNIT_OUTPUT_NAME:-result.xml}
-    image: node:18
-    user: 1000:1000
-    volumes:
-      - .:/srv/app
-      - ${HOST_CYPRESS_CACHE_FOLDER:-~/.cache/Cypress}:/home/cypress-cache
-      - ${HOST_YARN_CACHE_FOLDER:-~/.cache/yarn}:/home/yarn-cache
-      - ${HOST_YARN_CONFIG_FOLDER:-~/.config/yarn}:/.yarn
-      - ${HOST_YARN_CONFIG_FILE:-~/.yarnrc}:/.yarnrc
-    working_dir: /srv/app
-
   dev:
     command:
       - yarn
@@ -33,6 +11,8 @@ services:
     environment:
       <<: *database-env-variables
     image: node:18
+    networks:
+      - dev
     ports:
       - 3000:3000
     user: 1000:1000
@@ -42,34 +22,23 @@ services:
 
   prod:
     command:
-      - yarn
-      - start
+      - /bin/bash
+      - -c
+      - |
+        yarn build
+        yarn start
     depends_on:
       - database
     environment:
       <<: *database-env-variables
     image: node:18
+    networks:
+      - prod
     ports:
       - 8000:3000
     user: 1000:1000
     volumes:
       - .:/srv/app
-    working_dir: /srv/app
-
-  cypress-browsers:
-    image: cypress/browsers:node-18.16.1-chrome-114.0.5735.133-1-ff-114.0.2-edge-114.0.1823.51-1
-    environment:
-      <<: *cache-env-variables
-      CYPRESS_RECORD_KEY: ${CYPRESS_RECORD_KEY-:to_be_replaced_with_a_real_key}
-      DISPLAY: ${DISPLAY}
-    user: 1000:1000
-    volumes:
-      - .:/srv/app
-      - ${HOST_CYPRESS_CACHE_FOLDER:-~/.cache/Cypress}:/home/cypress-cache
-      - ${HOST_YARN_CACHE_FOLDER:-~/.cache/yarn}:/home/yarn-cache
-      - ${HOST_YARN_CONFIG_FOLDER:-~/.yarn}:/.yarn
-      - ${HOST_YARN_CONFIG_FILE:-~/.yarnrc}:/.yarnrc
-      - /tmp/.X11-unix:/tmp/.X11-unix
     working_dir: /srv/app
 
   database:
@@ -79,6 +48,13 @@ services:
       - '--store=type=mem,size=0.25'
       - '--advertise-addr=localhost'
     image: cockroachdb/cockroach
+    networks:
+      - dev
+      - prod
     ports:
       - 26257:26257
       - 8080:8080
+
+networks:
+  dev:
+  prod:

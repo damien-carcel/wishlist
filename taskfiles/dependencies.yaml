@@ -1,17 +1,10 @@
 version: 3
 
-includes:
-  setup:
-    taskfile: ./setup.yaml
-    internal: true
-
 tasks:
   install:
     desc: Install project dependencies.
     cmds:
-      - docker compose run --rm node yarn install --frozen-lockfile --check-files
-    deps:
-      - task: setup:yarn
+      - yarn install --frozen-lockfile --check-files
     preconditions:
       - sh: test -f yarn.lock
         msg: Cannot install the dependencies if there is no "yarn.lock" file.
@@ -20,21 +13,10 @@ tasks:
   upgrade:
     desc: Updates project dependencies to their latest version (works only if project dependencies were already installed).
     cmds:
-      - docker compose run --rm node yarn upgrade
-      - docker compose run --rm node yarn upgrade-interactive --latest
-      - docker compose run --rm node yarn upgrade
+      - yarn upgrade
+      - yarn upgrade-interactive --latest
+      - yarn upgrade
     preconditions:
       - sh: test -d node_modules
         msg: Cannot upgrade the dependencies if they are not already installed.
     aliases: [u]
-
-  cypress:
-    desc: Install the Cypress binary.
-    cmds:
-      - docker compose run --rm node yarn cypress install
-    preconditions:
-      - sh: test -f yarn.lock
-        msg: Cannot install the Cypress binary if there is no "yarn.lock" file.
-      - sh: test -d node_modules
-        msg: Cannot install the Cypress binary if dependencies are not already installed.
-    aliases: [c]
