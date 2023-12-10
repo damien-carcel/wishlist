@@ -2,6 +2,32 @@ x-database-env-variables: &database-env-variables
   DATABASE_URL: postgresql://root@database:26257/defaultdb?sslmode=disable
 
 services:
+  devcontainer:
+    build:
+      context: ./docker/devcontainer
+    command:
+      - sleep
+      - infinity
+    environment:
+      JEST_JUNIT_OUTPUT_DIR: ${JEST_JUNIT_OUTPUT_DIR:-}
+      JEST_JUNIT_OUTPUT_NAME: ${JEST_JUNIT_OUTPUT_NAME:-result.xml}
+      YARN_CACHE_FOLDER: /home/yarn-cache
+    user: 1000:1000
+    volumes:
+      - type: bind
+        source: .
+        target: /srv/app
+      - type: bind
+        source: ${HOST_YARN_CACHE_FOLDER:-~/.cache/yarn}
+        target: /home/yarn-cache
+      - type: bind
+        source: ${HOST_YARN_CONFIG_FOLDER:-~/.config/yarn}
+        target: /.yarn
+      - type: bind
+        source: ${HOST_YARN_CONFIG_FILE:-~/.yarnrc}
+        target: /.yarnrc
+    working_dir: /srv/app
+
   dev:
     command:
       - yarn
@@ -17,7 +43,9 @@ services:
       - 3000:3000
     user: 1000:1000
     volumes:
-      - .:/srv/app
+      - type: bind
+        source: .
+        target: /srv/app
     working_dir: /srv/app
 
   prod:
@@ -38,7 +66,9 @@ services:
       - 8000:3000
     user: 1000:1000
     volumes:
-      - .:/srv/app
+      - type: bind
+        source: .
+        target: /srv/app
     working_dir: /srv/app
 
   database:
