@@ -1,5 +1,5 @@
 {
-  "dockerComposeFile": ["../compose.yaml", "./compose.yaml"],
+  "dockerComposeFile": ["../compose.yaml"],
   "customizations": {
     "vscode": {
       "extensions": [
