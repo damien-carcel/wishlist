@@ -2,67 +2,67 @@ version: '3'
 
 tasks:
   static:prettier:check:
-    desc: Check the code style.
+    desc: Check the code style
     cmds:
       - yarn tests:prettier --check
     aliases: [p:c]
 
   static:prettier:fix:
-    desc: Fix the code style.
+    desc: Fix the code style
     cmds:
       - yarn tests:prettier --write
     aliases: [p:f]
 
   static:css:lint:
-    desc: Lint the stylesheets.
+    desc: Lint the stylesheets
     cmds:
       - yarn tests:lint:css
     aliases: [c:l]
 
   static:css:fix:
-    desc: Fix the stylesheets.
+    desc: Fix the stylesheets
     cmds:
       - yarn tests:lint:css --fix
     aliases: [c:f]
 
   static:ts:lint:
-    desc: Lint the application code.
+    desc: Lint the application code
     cmds:
       - yarn tests:lint:js {{.CLI_ARGS}}
     aliases: [t:l]
 
   static:ts:fix:
-    desc: Fix the application code.
+    desc: Fix the application code
     cmds:
       - yarn tests:lint:js --fix
     aliases: [t:f]
 
   static:types:check:
-    desc: Check the code typing.
+    desc: Check the code typing
     cmds:
       - yarn tests:typecheck
     aliases: [t:c]
 
   unit:run:
-    desc: Run unit tests.
+    desc: Run unit tests
     cmds:
       - yarn tests:unit:ci {{.CLI_ARGS}}
     aliases: [u:r]
 
   unit:update-snapshots:
-    desc: Run unit tests.
+    desc: Run unit tests
     cmds:
       - yarn tests:unit:ci -u
     aliases: [u:u]
 
   unit:watch:
-    desc: Run unit tests in watch mode.
+    desc: Run unit tests in watch mode
     cmds:
       - yarn tests:unit:watch
     aliases: [u:w]
 
   all:
-    desc: Execute all the tests.
+    desc: Execute all the tests
     cmds:
       - echo ""
       - echo "|----------------------|"
@@ -95,8 +95,8 @@ tasks:
       - echo ""
       - task: unit:run
       - echo ""
-      - echo "|------------------------------------------------------------------------------|"
-      - echo "| All tests successful. You can run \"task run:down\" to stop the application. |"
-      - echo "|------------------------------------------------------------------------------|"
+      - echo "|----------------------|"
+      - echo "| All tests successful |"
+      - echo "|----------------------|"
       - echo ""
     aliases: [a]
