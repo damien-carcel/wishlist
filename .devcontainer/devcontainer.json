@@ -10,6 +10,7 @@
         "github.vscode-github-actions",
         "ms-azuretools.vscode-docker",
         "redhat.vscode-yaml",
+        "streetsidesoftware.code-spell-checker",
         "task.vscode-task",
         "yzhang.markdown-all-in-one"
       ]
