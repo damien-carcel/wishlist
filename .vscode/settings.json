@@ -6,9 +6,7 @@
   "yaml.schemas": {
     "https://taskfile.dev/schema.json": [
       "taskfiles/dependencies.yaml",
-      "taskfiles/docker.yaml",
       "taskfiles/run.yaml",
-      "taskfiles/setup.yaml",
       "taskfiles/tests.yaml"
     ]
   }

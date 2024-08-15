@@ -1,102 +1,102 @@
-version: '3'
+version: "3"
 
 tasks:
-  static:prettier:check:
+  static:format:check:
+    aliases: [f:c]
+    cmds:
+      - docker compose run --rm dev npm run prettier -- --check
     desc: Check the code style
-    cmds:
-      - yarn tests:prettier --check
-    aliases: [p:c]
 
-  static:prettier:fix:
+  static:format:fix:
+    aliases: [f:f]
+    cmds:
+      - docker compose run --rm dev npm run prettier -- --write
     desc: Fix the code style
-    cmds:
-      - yarn tests:prettier --write
-    aliases: [p:f]
 
-  static:css:lint:
-    desc: Lint the stylesheets
+  static:style-sheet:lint:
+    aliases: [s:l]
     cmds:
-      - yarn tests:lint:css
+      - docker compose run --rm dev npm run stylelint
+    desc: Lint the style sheets
+
+  static:style-sheet:fix:
+    aliases: [s:f]
+    cmds:
+      - docker compose run --rm dev npm run stylelint -- --fix
+    desc: Fix the style sheets
+
+  static:code:lint:
     aliases: [c:l]
-
-  static:css:fix:
-    desc: Fix the stylesheets
     cmds:
-      - yarn tests:lint:css --fix
-    aliases: [c:f]
-
-  static:ts:lint:
+      - docker compose run --rm dev npm run lint -- {{.CLI_ARGS}}
     desc: Lint the application code
-    cmds:
-      - yarn tests:lint:js {{.CLI_ARGS}}
-    aliases: [t:l]
 
-  static:ts:fix:
-    desc: Fix the application code
+  static:code:fix:
+    aliases: [c:f]
     cmds:
-      - yarn tests:lint:js --fix
-    aliases: [t:f]
+      - docker compose run --rm dev npm run lint -- --fix
+    desc: Fix the application code
 
   static:types:check:
-    desc: Check the code typing
-    cmds:
-      - yarn tests:typecheck
     aliases: [t:c]
+    cmds:
+      - docker compose run --rm dev npm run typecheck
+    desc: Check the code typing
 
   unit:run:
-    desc: Run unit tests
-    cmds:
-      - yarn tests:unit:ci {{.CLI_ARGS}}
     aliases: [u:r]
+    cmds:
+      - docker compose run --rm dev npm run test:ci -- {{.CLI_ARGS}}
+    desc: Run unit tests
 
   unit:update-snapshots:
-    desc: Run unit tests
-    cmds:
-      - yarn tests:unit:ci -u
     aliases: [u:u]
+    cmds:
+      - docker compose run --rm dev npm run test:ci -- -u
+    desc: Update unit test snapshots
 
   unit:watch:
-    desc: Run unit tests in watch mode
-    cmds:
-      - yarn tests:unit:watch
     aliases: [u:w]
+    cmds:
+      - docker compose run --rm dev npm run test
+    desc: Run unit tests in watch mode
 
   all:
     desc: Execute all the tests
     cmds:
       - echo ""
-      - echo "|----------------------|"
-      - echo "| Check the code style |"
-      - echo "|----------------------|"
+      - echo "|---------------------------|"
+      - echo "| Check the code formatting |"
+      - echo "|---------------------------|"
       - echo ""
-      - task: static:prettier:check
+      - task: static:format:check
       - echo ""
-      - echo "|----------------------|"
-      - echo "| Lint the stylesheets |"
-      - echo "|----------------------|"
+      - echo "|---------------------------|"
+      - echo "|   Lint the style sheets   |"
+      - echo "|---------------------------|"
       - echo ""
-      - task: static:css:lint
+      - task: static:style-sheet:lint
       - echo ""
       - echo "|---------------------------|"
       - echo "| Lint the application code |"
       - echo "|---------------------------|"
       - echo ""
-      - task: static:ts:lint
+      - task: static:code:lint
       - echo ""
-      - echo "|-----------------------|"
-      - echo "| Check the code typing |"
-      - echo "|-----------------------|"
+      - echo "|---------------------------|"
+      - echo "|   Check the code typing   |"
+      - echo "|---------------------------|"
       - echo ""
       - task: static:types:check
       - echo ""
-      - echo "|----------------|"
-      - echo "| Run unit tests |"
-      - echo "|----------------|"
+      - echo "|---------------------------|"
+      - echo "|      Run unit tests       |"
+      - echo "|---------------------------|"
       - echo ""
       - task: unit:run
       - echo ""
-      - echo "|----------------------|"
-      - echo "| All tests successful |"
-      - echo "|----------------------|"
+      - echo "|---------------------------|"
+      - echo "|   All tests successful    |"
+      - echo "|---------------------------|"
       - echo ""
     aliases: [a]
