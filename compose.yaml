@@ -2,60 +2,49 @@ x-database-env-variables: &database-env-variables
   DATABASE_URL: postgresql://root@database:26257/defaultdb?sslmode=disable
 
 services:
-  devcontainer:
-    build:
-      args:
-        NODE_VERSION: ${NODE_VERSION}
-      context: ./docker/devcontainer
-    command:
-      - sleep
-      - infinity
-    environment:
-      JEST_JUNIT_OUTPUT_DIR: ${JEST_JUNIT_OUTPUT_DIR:-}
-      JEST_JUNIT_OUTPUT_NAME: ${JEST_JUNIT_OUTPUT_NAME:-result.xml}
-      NPM_CONFIG_CACHE: /home/npm
-    user: ${HOST_USER_IDS:-1000:1000}
-    volumes:
-      - type: bind
-        source: .
-        target: /srv/app
-      - type: bind
-        source: ~/.npm
-        target: /home/npm
-    working_dir: /srv/app
-
   dev:
     command:
-      - yarn
+      - npm
+      - run
       - dev
     depends_on:
       - database
     environment:
       <<: *database-env-variables
-    image: node:${NODE_VERSION}
+      NPM_CONFIG_CACHE: ${NPM_CONFIG_CACHE:-/home/node/.npm}
+    expose:
+      - 3000
+    image: node:lts-slim
     networks:
       - dev
     ports:
       - 3000:3000
+    tty: true
     user: ${HOST_USER_IDS:-1000:1000}
     volumes:
       - type: bind
         source: .
-        target: /srv/app
-    working_dir: /srv/app
+        target: /app
+      - type: bind
+        source: ~/.npm
+        target: /home/node/.npm
+    working_dir: /app
 
   prod:
     command:
       - /bin/bash
       - -c
       - |
-        yarn build
-        yarn start
+        npm run build
+        npm run start
     depends_on:
       - database
     environment:
       <<: *database-env-variables
-    image: node:${NODE_VERSION}
+      NPM_CONFIG_CACHE: ${NPM_CONFIG_CACHE:-/home/node/.npm}
+    expose:
+      - 8000
+    image: node:lts-slim
     networks:
       - prod
     ports:
@@ -64,8 +53,11 @@ services:
     volumes:
       - type: bind
         source: .
-        target: /srv/app
-    working_dir: /srv/app
+        target: /app
+      - type: bind
+        source: ~/.npm
+        target: /home/node/.npm
+    working_dir: /app
 
   database:
     command:

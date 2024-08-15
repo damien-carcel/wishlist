@@ -1,5 +1,4 @@
 {
-  "dockerComposeFile": ["../compose.yaml"],
   "customizations": {
     "vscode": {
       "extensions": [
@@ -7,7 +6,6 @@
         "dbaeumer.vscode-eslint",
         "eamodio.gitlens",
         "esbenp.prettier-vscode",
-        "github.vscode-github-actions",
         "ms-azuretools.vscode-docker",
         "redhat.vscode-yaml",
         "streetsidesoftware.code-spell-checker",
@@ -16,11 +14,28 @@
       ]
     }
   },
+  "dockerComposeFile": [
+    "./compose.yaml"
+  ],
+  "features": {
+    "ghcr.io/devcontainers/features/docker-in-docker:2": {},
+    "ghcr.io/devcontainers/features/node:1": {}
+  },
+  "forwardPorts": [
+    3000,
+    8000
+  ],
   "initializeCommand": "./.devcontainer/setup.sh",
+  "portsAttributes": {
+    "3000": {
+      "label": "Next Dev server"
+    },
+    "8000": {
+      "label": "Next Prod server"
+    }
+  },
+  "postCreateCommand": "task dependencies:install run:dev",
   "name": "Wishlist",
-  "postCreateCommand": "task dependencies:install",
-  "runServices": ["dev", "prod"],
-  "remoteUser": "node",
   "service": "devcontainer",
-  "workspaceFolder": "/srv/app"
+  "workspaceFolder": "/app"
 }

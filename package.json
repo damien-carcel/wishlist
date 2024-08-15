@@ -4,27 +4,27 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
+    "lint": "next lint",
     "migrate": "node-pg-migrate",
-    "tests:lint:css": "stylelint '**/*.css'",
-    "tests:lint:js": "next lint",
-    "tests:prettier": "prettier '**/*.{ts,tsx}'",
-    "tests:typecheck": "tsc -b",
-    "tests:unit:ci": "jest --ci",
-    "tests:unit:update-snapshots": "jest --jest --updateSnapshot",
-    "tests:unit:watch": "jest --watch"
+    "prettier": "prettier '**/*.{js,jsx,mjs,ts,tsx}'",
+    "stylelint": "stylelint '**/*.css'",
+    "test": "jest --watch",
+    "test:ci": "jest --ci",
+    "typecheck": "tsc -b"
   },
   "engines": {
     "node": ">=20.0.0 <21.0.0"
   },
   "dependencies": {
     "@testing-library/dom": "^9.3.3",
-    "next": "^14.0.1",
-    "node-pg-migrate": "^6.2.2",
+    "next": "14.2.5",
+    "node-pg-migrate": "^7.6.1",
     "pg": "^8.10.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
   },
   "devDependencies": {
+    "@testing-library/dom": "^9.3.3",
     "@testing-library/jest-dom": "^6.0.0",
     "@testing-library/react": "^14.0.0",
     "@testing-library/user-event": "^14.5.1",
