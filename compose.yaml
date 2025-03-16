@@ -7,8 +7,6 @@ services:
       - npm
       - run
       - dev
-    depends_on:
-      - database
     environment:
       <<: *database-env-variables
       NPM_CONFIG_CACHE: ${NPM_CONFIG_CACHE:-/home/node/.npm}
@@ -37,8 +35,6 @@ services:
       - |
         npm run build
         npm run start
-    depends_on:
-      - database
     environment:
       <<: *database-env-variables
       NPM_CONFIG_CACHE: ${NPM_CONFIG_CACHE:-/home/node/.npm}
