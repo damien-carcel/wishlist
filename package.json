@@ -13,7 +13,7 @@
     "typecheck": "tsc -b"
   },
   "dependencies": {
-    "next": "^15.2.4",
+    "next": "^15.3.3",
     "node-pg-migrate": "^7.6.1",
     "pg": "^8.10.0",
     "react": "^19.0.0",
