@@ -1,0 +1,32 @@
+version: 3
+
+tasks:
+  start:
+    aliases:
+      - s
+    cmds:
+      - docker compose up -d --wait database
+    desc: Start the database
+
+  stop:
+    aliases:
+      - s
+    cmds:
+      - docker compose stop database
+    desc: Stop the database
+
+  create:test-db:
+    aliases:
+      - c:tdb
+    cmds:
+      - docker compose run --rm -e APP_ENV=test app bin/console doctrine:database:create --if-not-exists
+    desc: Create the test database (the "regular" database is created automatically at container startup)
+
+  migrate:
+    aliases:
+      - m
+    cmds:
+      - docker compose run --rm -e APP_ENV="{{.APP_ENV}}" app bin/console doctrine:migrations:migrate --no-interaction --allow-no-migration
+    desc: Run database migrations
+    vars:
+      APP_ENV: '{{.APP_ENV| default "dev"}}'
