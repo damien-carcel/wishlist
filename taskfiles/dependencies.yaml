@@ -5,23 +5,42 @@ tasks:
     aliases:
       - i
     cmds:
-      - docker compose run --rm dev npm install
-    desc: Install dependencies
-
-  upgrade:
-    desc: Updates project dependencies to their latest version
-    cmds:
-      - docker compose run --rm dev npm update
-    preconditions:
-      - sh: test -d node_modules
-        msg: Cannot upgrade the dependencies if they are not already installed
-    aliases: [u]
+      - docker compose run --rm app composer install --prefer-dist --optimize-autoloader --no-interaction
+    desc: Install project dependencies
 
   outdated:
-    desc: Check for outdated project dependencies
+    aliases:
+      - o
     cmds:
-      - docker compose run --rm dev npm outdated
+      - docker compose run --rm app composer outdated
+    desc: Check for outdated dependencies
     preconditions:
-      - sh: test -d node_modules
-        msg: Cannot check for outdated dependencies if they are not already installed
-    aliases: [o]
+      - sh: test -d vendor
+        msg: Cannot update the dependencies if they are not already installed
+
+  update:
+    aliases:
+      - u
+    cmds:
+      - docker compose run --rm app composer update --prefer-dist --optimize-autoloader --no-interaction {{.CLI_ARGS}}
+    desc: Update project dependencies
+    preconditions:
+      - sh: test -d vendor
+        msg: Cannot update the dependencies if they are not already installed
+
+  recipes:
+    aliases:
+      - r
+    cmds:
+      - docker compose run --rm app composer recipes:update {{.CLI_ARGS}}
+    desc: Update Symfony recipes
+    preconditions:
+      - sh: test -d vendor
+        msg: Cannot update the Symfony recipes if dependencies are not already installed
+
+  require:
+    aliases:
+      - req
+    cmds:
+      - docker compose run --rm app composer require {{.CLI_ARGS}}
+    desc: Require new dependencies

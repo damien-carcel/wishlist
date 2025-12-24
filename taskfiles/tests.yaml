@@ -1,102 +1,137 @@
-version: "3"
+version: '3'
+
+includes:
+  database:
+    internal: true
+    taskfile: ./database.yaml
+    vars:
+      APP_ENV: test
 
 tasks:
-  static:format:check:
-    aliases: [f:c]
+  code-style:check:
+    aliases:
+      - code-style:c
+      - cs:check
+      - cs:c
     cmds:
-      - docker compose run --rm dev npm run prettier -- --check
-    desc: Check the code style
+      - docker compose run --rm app vendor/bin/php-cs-fixer check {{.CLI_ARGS}}
+    desc: Check the code-style
 
-  static:format:fix:
-    aliases: [f:f]
+  code-style:fix:
+    aliases:
+      - code-style:f
+      - cs:fix
+      - cs:f
     cmds:
-      - docker compose run --rm dev npm run prettier -- --write
-    desc: Fix the code style
+      - docker compose run --rm app vendor/bin/php-cs-fixer fix {{.CLI_ARGS}}
+    desc: Fix the code-style
 
-  static:style-sheet:lint:
-    aliases: [s:l]
+  static-analysis:
+    aliases:
+      - sa
     cmds:
-      - docker compose run --rm dev npm run stylelint
-    desc: Lint the style sheets
+      - docker compose run --rm app vendor/bin/phpstan analyse {{.CLI_ARGS}}
+    desc: Run the static analysis
 
-  static:style-sheet:fix:
-    aliases: [s:f]
+  unit:
+    aliases:
+      - u
     cmds:
-      - docker compose run --rm dev npm run stylelint -- --fix
-    desc: Fix the style sheets
+      - docker compose run --rm app bin/phpunit --testsuite "Unit Tests" --testdox {{.CLI_ARGS}}
+    desc: Run the unit tests
 
-  static:code:lint:
-    aliases: [c:l]
+  acceptance:
+    aliases:
+      - a
     cmds:
-      - docker compose run --rm dev npm run lint -- {{.CLI_ARGS}}
-    desc: Lint the application code
+      - docker compose run --rm app bin/phpunit --testsuite "Acceptance Tests" --testdox {{.CLI_ARGS}}
+    desc: Run the acceptance tests
 
-  static:code:fix:
-    aliases: [c:f]
+  integration-with-in-memory-adapters:
+    aliases:
+      - im
     cmds:
-      - docker compose run --rm dev npm run lint -- --fix
-    desc: Fix the application code
+      - docker compose run --rm --env TEST_ENV="memory" app bin/phpunit --testsuite "Integration Tests" --group "with-in-memory-adapters" --testdox {{.CLI_ARGS}}
+    desc: Run the integration tests for "in memory" adapters
 
-  static:types:check:
-    aliases: [t:c]
+  integration-with-production-adapters:
+    aliases:
+      - ip
     cmds:
-      - docker compose run --rm dev npm run typecheck
-    desc: Check the code typing
+      - docker compose run --rm --env TEST_ENV="test" app bin/phpunit --testsuite "Integration Tests" --group "with-production-adapters" --testdox {{.CLI_ARGS}}
+    desc: Run the integration tests for "production" adapters
 
-  unit:run:
-    aliases: [u:r]
+  integration:
+    aliases:
+      - i
     cmds:
-      - docker compose run --rm dev npm run test:ci -- {{.CLI_ARGS}}
-    desc: Run unit tests
+      - task: integration-with-in-memory-adapters
+      - task: integration-with-production-adapters
+    desc: Run the integration tests for both "in memory" and "production" adapters
 
-  unit:update-snapshots:
-    aliases: [u:u]
+  end-to-end:
+    aliases:
+      - e
     cmds:
-      - docker compose run --rm dev npm run test:ci -- -u
-    desc: Update unit test snapshots
+      - docker compose run --rm app bin/phpunit --testsuite "End-to-End Tests" --testdox {{.CLI_ARGS}}
+    desc: Run the end-to-end tests
 
-  unit:watch:
-    aliases: [u:w]
+  setup-database:
+    aliases:
+      - db:setup
+      - db:s
     cmds:
-      - docker compose run --rm dev npm run test
-    desc: Run unit tests in watch mode
+      - task: database:start
+      - task: database:create:test-db
+      - task: database:migrate
+    desc: Set up the database for integration tests and end-to-end tests
 
   all:
-    desc: Execute all the tests
     cmds:
       - echo ""
-      - echo "|---------------------------|"
-      - echo "| Check the code formatting |"
-      - echo "|---------------------------|"
+      - echo "|-----------------------|"
+      - echo "|   Check code-style    |"
+      - echo "|-----------------------|"
       - echo ""
-      - task: static:format:check
+      - task: code-style:check
       - echo ""
-      - echo "|---------------------------|"
-      - echo "|   Lint the style sheets   |"
-      - echo "|---------------------------|"
+      - echo "|-----------------------|"
+      - echo "|  Run static analysis  |"
+      - echo "|-----------------------|"
       - echo ""
-      - task: static:style-sheet:lint
+      - task: static-analysis
       - echo ""
-      - echo "|---------------------------|"
-      - echo "| Lint the application code |"
-      - echo "|---------------------------|"
+      - echo "|-----------------------|"
+      - echo "|    Run unit tests     |"
+      - echo "|-----------------------|"
       - echo ""
-      - task: static:code:lint
+      - task: unit
       - echo ""
-      - echo "|---------------------------|"
-      - echo "|   Check the code typing   |"
-      - echo "|---------------------------|"
+      - echo "|-----------------------|"
+      - echo "| Run acceptance tests  |"
+      - echo "|-----------------------|"
       - echo ""
-      - task: static:types:check
+      - task: acceptance
       - echo ""
-      - echo "|---------------------------|"
-      - echo "|      Run unit tests       |"
-      - echo "|---------------------------|"
+      - echo "|-----------------------|"
+      - echo "| Run integration tests |"
+      - echo "|-----------------------|"
       - echo ""
-      - task: unit:run
+      - task: integration-with-in-memory-adapters
       - echo ""
-      - echo "|---------------------------|"
-      - echo "|   All tests successful    |"
-      - echo "|---------------------------|"
+      - task: setup-database
       - echo ""
-    aliases: [a]
+      - task: integration-with-production-adapters
+      - echo ""
+      - echo "|-----------------------|"
+      - echo "| Run end-to-end tests  |"
+      - echo "|-----------------------|"
+      - echo ""
+      - task: end-to-end
+      - echo ""
+      - echo "|-----------------------|"
+      - echo "|       All Tests       |"
+      - echo "| Successfully Executed |"
+      - echo "|-----------------------|"
+      - echo ""
+    desc: Execute all the tests

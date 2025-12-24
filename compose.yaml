@@ -1,74 +1,45 @@
-x-database-env-variables: &database-env-variables
-  DATABASE_URL: postgresql://root@database:26257/defaultdb?sslmode=disable
-
 services:
-  dev:
-    command:
-      - npm
-      - run
-      - dev
+  app:
+    build:
+      context: docker/php
+      target: dev
     environment:
-      <<: *database-env-variables
-      NPM_CONFIG_CACHE: ${NPM_CONFIG_CACHE:-/home/node/.npm}
-    expose:
-      - 3000
-    image: node:lts-slim
-    networks:
-      - dev
-    ports:
-      - 3000:3000
-    tty: true
+      COMPOSER_CACHE_DIR: /home/composer/.cache/composer
+      COMPOSER_HOME: /home/composer/.config/composer
+      PHP_CONF_DISPLAY_ERRORS: 1
+      PHP_CONF_DISPLAY_STARTUP_ERRORS: 1
+      PHP_CONF_ERROR_REPORTING: 32767
+      PHP_CONF_OPCACHE_VALIDATE_TIMESTAMP: 1
+      PHP_CONF_ZEND_ASSERTIONS: 1
+      PHP_IDE_CONFIG: serverName=wishlist
+      XDEBUG_CONFIG: client_host=172.17.0.1
+      XDEBUG_MODE: ${XDEBUG_MODE:-off}
     user: ${HOST_USER_IDS:-1000:1000}
     volumes:
       - type: bind
         source: .
         target: /app
       - type: bind
-        source: ~/.npm
-        target: /home/node/.npm
-    working_dir: /app
-
-  prod:
-    command:
-      - /bin/bash
-      - -c
-      - |
-        npm run build
-        npm run start
-    environment:
-      <<: *database-env-variables
-      NPM_CONFIG_CACHE: ${NPM_CONFIG_CACHE:-/home/node/.npm}
-    expose:
-      - 8000
-    image: node:lts-slim
-    networks:
-      - prod
-    ports:
-      - 8000:3000
-    user: ${HOST_USER_IDS:-1000:1000}
-    volumes:
+        source: ${HOST_COMPOSER_CACHE_DIR:-~/.cache/composer}
+        target: /home/composer/.cache/composer
       - type: bind
-        source: .
-        target: /app
-      - type: bind
-        source: ~/.npm
-        target: /home/node/.npm
+        source: ${HOST_COMPOSER_HOME:-~/.config/composer}
+        target: /home/composer/.cache/composer
     working_dir: /app
 
   database:
-    command:
-      - start-single-node
-      - '--insecure'
-      - '--store=type=mem,size=0.25'
-      - '--advertise-addr=localhost'
-    image: cockroachdb/cockroach
-    networks:
-      - dev
-      - prod
+    environment:
+      POSTGRES_DB: ${PGSQL_DB:-app}
+      POSTGRES_USER: ${PGSQL_USERNAME:-app}
+      POSTGRES_PASSWORD: ${PGSQL_PASSWORD:-password}
+    image: postgres:18
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U app"]
+      interval: 2s
+      timeout: 5s
+      retries: 20
+      start_period: 0s
+      start_interval: 0s
     ports:
-      - 26257:26257
-      - 8080:8080
-
-networks:
-  dev:
-  prod:
+      - "5432:5432"
+    restart: unless-stopped
