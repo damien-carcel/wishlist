@@ -41,5 +41,5 @@ services:
       start_period: 0s
       start_interval: 0s
     ports:
-      - "5432:5432"
+      - "${DEMO_POSTGRE_PORT:-5432}:5432"
     restart: unless-stopped
