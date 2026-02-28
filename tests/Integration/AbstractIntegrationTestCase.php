@@ -4,12 +4,15 @@ declare(strict_types=1);
 
 namespace App\Tests\Integration;
 
+use App\Tests\Shared\GetServiceTrait;
 use Doctrine\DBAL\Connection;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\HttpKernel\KernelInterface;
 
 abstract class AbstractIntegrationTestCase extends KernelTestCase
 {
+    use GetServiceTrait;
+
     /**
      * @param array<string, string> $options
      */
@@ -37,7 +40,7 @@ abstract class AbstractIntegrationTestCase extends KernelTestCase
             /** @var Connection $databaseConnection */
             $databaseConnection = self::getContainer()->get('doctrine.dbal.default_connection');
             dump($databaseConnection->getConfiguration());
-            // $databaseConnection->executeStatement('TRUNCATE TABLE "users"');
+            // $databaseConnection->executeStatement('TRUNCATE TABLE "whatever"');
         }
     }
 

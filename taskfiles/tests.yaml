@@ -76,16 +76,6 @@ tasks:
       - docker compose run --rm app bin/phpunit --testsuite "End-to-End Tests" --testdox {{.CLI_ARGS}}
     desc: Run the end-to-end tests
 
-  setup-database:
-    aliases:
-      - db:setup
-      - db:s
-    cmds:
-      - task: database:start
-      - task: database:create:test-db
-      - task: database:migrate
-    desc: Set up the database for integration tests and end-to-end tests
-
   all:
     cmds:
       - echo ""
@@ -119,7 +109,8 @@ tasks:
       - echo ""
       - task: integration-with-in-memory-adapters
       - echo ""
-      - task: setup-database
+      - task database:up
+      - task database:test:create
       - echo ""
       - task: integration-with-production-adapters
       - echo ""

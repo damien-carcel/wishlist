@@ -4,31 +4,26 @@ declare(strict_types=1);
 
 namespace App\Tests\EndToEnd;
 
+use App\Tests\Shared\GetServiceTrait;
 use Doctrine\DBAL\Connection;
+use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
-use Symfony\Component\HttpKernel\KernelInterface;
 
 abstract class AbstractEndToEndTestCase extends WebTestCase
 {
-    /**
-     * @param array<string, string> $options
-     */
-    protected static function bootKernel(array $options = []): KernelInterface
-    {
-        $options = array_merge($options, ['environment' => 'test']);
+    use GetServiceTrait;
 
-        return parent::bootKernel($options);
-    }
+    protected KernelBrowser $client;
 
     protected function setUp(): void
     {
-        parent::setUp();
+        $this->client = self::createClient();
 
         /** @var Connection $databaseConnection */
         $databaseConnection = self::getContainer()->get('doctrine.dbal.default_connection');
 
         dump($databaseConnection->getConfiguration());
-        // $databaseConnection->executeStatement('TRUNCATE TABLE "users"');
+        // $databaseConnection->executeStatement('TRUNCATE TABLE "whatever"');
 
         self::ensureKernelShutdown();
     }
