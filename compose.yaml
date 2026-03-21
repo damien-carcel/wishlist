@@ -1,16 +1,11 @@
 services:
-  app:
+  cli:
     build:
       context: docker/php
       target: dev
     environment:
       COMPOSER_CACHE_DIR: /home/composer/.cache/composer
       COMPOSER_HOME: /home/composer/.config/composer
-      PHP_CONF_DISPLAY_ERRORS: 1
-      PHP_CONF_DISPLAY_STARTUP_ERRORS: 1
-      PHP_CONF_ERROR_REPORTING: 32767
-      PHP_CONF_OPCACHE_VALIDATE_TIMESTAMP: 1
-      PHP_CONF_ZEND_ASSERTIONS: 1
       PHP_IDE_CONFIG: serverName=wishlist
       XDEBUG_CONFIG: client_host=172.17.0.1
       XDEBUG_MODE: ${XDEBUG_MODE:-off}
@@ -26,6 +21,17 @@ services:
         source: ${HOST_COMPOSER_HOME:-~/.config/composer}
         target: /home/composer/.cache/composer
     working_dir: /app
+
+  web:
+    image: dunglas/frankenphp
+    ports:
+      - "${WISHLIST_HTTP_PORT:-80}:80"
+      - "${WISHLIST_HTTPS_PORT:-443}:443"
+      - "${WISHLIST_HTTPS_PORT:-443}:443/udp"
+    volumes:
+      - type: bind
+        source: .
+        target: /app
 
   database:
     environment:

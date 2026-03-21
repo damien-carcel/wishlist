@@ -14,7 +14,7 @@ tasks:
       - test:c
       - t:create
     cmds:
-      - docker compose run --rm -e APP_ENV=test app bin/console doctrine:database:create --if-not-exists
+      - docker compose run --rm -e APP_ENV=test cli bin/console doctrine:database:create --if-not-exists
       - task: migrate
         vars:
           APP_ENV: test
@@ -24,7 +24,7 @@ tasks:
     aliases:
       - m
     cmds:
-      - docker compose run --rm -e APP_ENV="{{.APP_ENV}}" app bin/console doctrine:migrations:migrate --no-interaction --allow-no-migration
+      - docker compose run --rm -e APP_ENV="{{.APP_ENV}}" cli bin/console doctrine:migrations:migrate --no-interaction --allow-no-migration
     desc: Run database migrations
     vars:
       APP_ENV: '{{.APP_ENV| default "dev"}}'

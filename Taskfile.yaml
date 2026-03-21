@@ -25,8 +25,8 @@ tasks:
 
   run:
     cmds:
-      - docker compose run --rm --remove-orphans app {{.CLI_ARGS}}
-    desc: "Run something in the app container. Example: task run -- bin/console"
+      - docker compose run --rm --remove-orphans cli {{.CLI_ARGS}}
+    desc: "Run something in the cli container. Example: task run -- bin/console"
 
   up:
     cmds:
@@ -34,4 +34,5 @@ tasks:
       - task: database:up
       - task: database:migrate
       - task: database:test:create
-    desc: Start and set up the application
+      - docker compose up -d --remove-orphans web
+    desc: Start and set up the application for development
