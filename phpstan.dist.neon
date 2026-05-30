@@ -5,5 +5,4 @@ parameters:
         - src/
         - tests/
     excludePaths:
-        - config/reference.php
         - tests/bootstrap.php
