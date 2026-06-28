@@ -75,12 +75,12 @@
         ]
     },
     "symfony/asset-mapper": {
-        "version": "8.0",
+        "version": "8.1",
         "recipe": {
             "repo": "github.com/symfony/recipes",
             "branch": "main",
             "version": "6.4",
-            "ref": "5ad1308aa756d58f999ffbe1540d1189f5d7d14a"
+            "ref": "c01c47af2ec66a74ec046eccb919cfe27d3464ec"
         },
         "files": [
             "assets/app.js",
@@ -115,12 +115,12 @@
         ]
     },
     "symfony/framework-bundle": {
-        "version": "8.0",
+        "version": "8.1",
         "recipe": {
             "repo": "github.com/symfony/recipes",
             "branch": "main",
-            "version": "7.4",
-            "ref": "d5dcd308c8becd725c9d8b91e31aab1ff0bbc30b"
+            "version": "8.1",
+            "ref": "312027aea160796a50bf2d185503afdb5d71f570"
         },
         "files": [
             ".editorconfig",
@@ -148,12 +148,12 @@
         ]
     },
     "symfony/twig-bundle": {
-        "version": "8.0",
+        "version": "8.1",
         "recipe": {
             "repo": "github.com/symfony/recipes",
             "branch": "main",
             "version": "6.4",
-            "ref": "cab5fd2a13a45c266d45a7d9337e28dee6272877"
+            "ref": "06dacf16872358cb1f2494e089070ff2d045233a"
         },
         "files": [
             "config/packages/twig.yaml",
