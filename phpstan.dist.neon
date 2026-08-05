@@ -5,4 +5,5 @@ parameters:
         - src/
         - tests/
     excludePaths:
+        - src/Kernel.php
         - tests/bootstrap.php

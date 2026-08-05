@@ -14,7 +14,7 @@ tasks:
       - cs:check
       - cs:c
     cmds:
-      - docker compose run --rm app vendor/bin/php-cs-fixer check {{.CLI_ARGS}}
+      - docker compose run --rm cli vendor/bin/php-cs-fixer check {{.CLI_ARGS}}
     desc: Check the code-style
 
   code-style:fix:
@@ -23,42 +23,42 @@ tasks:
       - cs:fix
       - cs:f
     cmds:
-      - docker compose run --rm app vendor/bin/php-cs-fixer fix {{.CLI_ARGS}}
+      - docker compose run --rm cli vendor/bin/php-cs-fixer fix {{.CLI_ARGS}}
     desc: Fix the code-style
 
   static-analysis:
     aliases:
       - sa
     cmds:
-      - docker compose run --rm app vendor/bin/phpstan analyse {{.CLI_ARGS}}
+      - docker compose run --rm cli vendor/bin/phpstan analyse {{.CLI_ARGS}}
     desc: Run the static analysis
 
   unit:
     aliases:
       - u
     cmds:
-      - docker compose run --rm app bin/phpunit --testsuite "Unit Tests" --testdox {{.CLI_ARGS}}
+      - docker compose run --rm cli bin/phpunit --testsuite "Unit Tests" --testdox {{.CLI_ARGS}}
     desc: Run the unit tests
 
   acceptance:
     aliases:
       - a
     cmds:
-      - docker compose run --rm app bin/phpunit --testsuite "Acceptance Tests" --testdox {{.CLI_ARGS}}
+      - docker compose run --rm cli bin/phpunit --testsuite "Acceptance Tests" --testdox {{.CLI_ARGS}}
     desc: Run the acceptance tests
 
   integration-with-in-memory-adapters:
     aliases:
       - im
     cmds:
-      - docker compose run --rm --env TEST_ENV="memory" app bin/phpunit --testsuite "Integration Tests" --group "with-in-memory-adapters" --testdox {{.CLI_ARGS}}
+      - docker compose run --rm --env TEST_ENV="memory" cli bin/phpunit --testsuite "Integration Tests" --group "with-in-memory-adapters" --testdox {{.CLI_ARGS}}
     desc: Run the integration tests for "in memory" adapters
 
   integration-with-production-adapters:
     aliases:
       - ip
     cmds:
-      - docker compose run --rm --env TEST_ENV="test" app bin/phpunit --testsuite "Integration Tests" --group "with-production-adapters" --testdox {{.CLI_ARGS}}
+      - docker compose run --rm --env TEST_ENV="test" cli bin/phpunit --testsuite "Integration Tests" --group "with-production-adapters" --testdox {{.CLI_ARGS}}
     desc: Run the integration tests for "production" adapters
 
   integration:
@@ -73,7 +73,7 @@ tasks:
     aliases:
       - e
     cmds:
-      - docker compose run --rm app bin/phpunit --testsuite "End-to-End Tests" --testdox {{.CLI_ARGS}}
+      - docker compose run --rm cli bin/phpunit --testsuite "End-to-End Tests" --testdox {{.CLI_ARGS}}
     desc: Run the end-to-end tests
 
   all:
