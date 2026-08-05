@@ -1,6 +1,7 @@
 # My Wishlist App
 
-This is my personal Wishlist application, writen with Symfony.
+This is my personal Wishlist application, written with [Symfony](https://symfony.com/) and served
+with [FrankenPHP](https://frankenphp.dev/).
 
 ## Pre-requisites
 
