@@ -23,7 +23,7 @@ services:
     working_dir: /app
 
   web:
-    image: dunglas/frankenphp
+    image: dunglas/frankenphp:1.12.7-php8.5-trixie
     ports:
       - "${WISHLIST_HTTP_PORT:-80}:80"
       - "${WISHLIST_HTTPS_PORT:-443}:443"
