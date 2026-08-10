@@ -1,0 +1,17 @@
+version: 3
+
+tasks:
+  dev:
+    aliases:
+      - v
+    cmds:
+      - docker compose pull
+      - docker compose build --pull
+    desc: Build the development image
+
+  prod:
+    aliases:
+      - p
+    cmds:
+      - docker build --file docker/php/Dockerfile --tag carcel/wishlist:latest --target prod .
+    desc: Build the production image

@@ -1,0 +1,43 @@
+services:
+  web:
+    depends_on:
+      - database
+    environment:
+      APP_SECRET: f5ae5fa060413265bc9e242493e62026
+    image: carcel/wishlist:latest
+    networks:
+      - wishlist-production
+    ports:
+      - "${WISHLIST_HTTP_PORT:-80}:80"
+      - "${WISHLIST_HTTPS_PORT:-443}:443"
+      - "${WISHLIST_HTTPS_PORT:-443}:443/udp"
+    volumes:
+      - caddy_config:/config
+      - caddy_data:/data
+
+  database:
+    environment:
+      POSTGRES_DB: ${PGSQL_DB:-wishlist}
+      POSTGRES_USER: ${PGSQL_USERNAME:-wishlist}
+      POSTGRES_PASSWORD: ${PGSQL_PASSWORD:-wishlist}
+    image: postgres:18
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U wishlist"]
+      interval: 2s
+      timeout: 5s
+      retries: 20
+      start_period: 0s
+      start_interval: 0s
+    networks:
+      - wishlist-production
+    restart: unless-stopped
+    volumes:
+      - postgresql_data:/var/lib/postgresql
+
+networks:
+  wishlist-production:
+
+volumes:
+  caddy_config:
+  caddy_data:
+  postgresql_data:
