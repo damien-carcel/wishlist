@@ -2,6 +2,9 @@ version: '3'
 
 silent: true
 
+vars:
+  USER_IDS: '{{.USER_IDS| default "1000:1000"}}'
+
 includes:
   build:
     taskfile: ./taskfiles/build.yaml

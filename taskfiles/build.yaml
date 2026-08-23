@@ -3,7 +3,7 @@ version: 3
 tasks:
   dev:
     aliases:
-      - v
+      - d
     cmds:
       - docker compose pull
       - docker compose build --pull
@@ -13,5 +13,5 @@ tasks:
     aliases:
       - p
     cmds:
-      - docker build --file docker/php/Dockerfile --tag carcel/wishlist:latest --target prod .
+      - docker build --tag carcel/wishlist:latest --target frankenphp_prod .
     desc: Build the production image

@@ -18,12 +18,7 @@ abstract class AbstractIntegrationTestCase extends KernelTestCase
      */
     protected static function bootKernel(array $options = []): KernelInterface
     {
-        /** @phpstan-var string $testEnvironment */
         $testEnvironment = self::getCurrentTestEnvironment();
-
-        if (!\in_array($testEnvironment, ['memory', 'test'], true)) {
-            throw new \RuntimeException("Invalid TEST_ENV environment variable value \"$testEnvironment\". Valid values are \"memory\" and \"test\".");
-        }
 
         $options = array_merge($options, ['environment' => $testEnvironment]);
 
@@ -46,8 +41,15 @@ abstract class AbstractIntegrationTestCase extends KernelTestCase
 
     private static function getCurrentTestEnvironment(): string
     {
-        /** @phpstan-var string $testEnvironment */
-        $testEnvironment = $_ENV['TEST_ENV'] ?? throw new \RuntimeException('TEST_ENV environment variable not found.');
+        $testEnvironment = getenv('TEST_ENV');
+
+        if (false === $testEnvironment) {
+            throw new \RuntimeException('TEST_ENV environment variable not found.');
+        }
+
+        if (!\in_array($testEnvironment, ['memory', 'test'], true)) {
+            throw new \RuntimeException("Invalid TEST_ENV environment variable value \"$testEnvironment\". Valid values are \"memory\" and \"test\".");
+        }
 
         return $testEnvironment;
     }

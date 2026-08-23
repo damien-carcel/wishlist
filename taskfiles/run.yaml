@@ -5,18 +5,18 @@ tasks:
     aliases:
       - sh
     cmds:
-      - docker compose run --rm --remove-orphans cli bash
+      - docker compose run --rm --user "{{.HOST_USER_IDS}}" php bash
     desc: Launch a shell in the development container
 
   dev:
     aliases:
       - d
     cmds:
-      - task: dependencies:install
-      - task: database:up
-      - task: database:migrate
-      - task: database:test:create
-      - docker compose up --detach --force-recreate --remove-orphans --wait web
+      - task dependencies:install
+      - task database:up
+      - task database:migrate
+      - task database:test:create
+      - docker compose up --detach --force-recreate --remove-orphans --wait php
       - echo "Access at https://localhost/"
     desc: Run the app for development
 
@@ -25,8 +25,8 @@ tasks:
       - p
     cmds:
       - task build:prod
-      - docker compose --file compose.prod.yaml up --detach --force-recreate --remove-orphans --wait web
-      - docker compose --file compose.prod.yaml exec --env=prod web bin/console doctrine:migrations:migrate --no-interaction --allow-no-migration
+      - docker compose --file compose.prod.yaml up --detach --force-recreate --remove-orphans --wait php
+      - docker compose --file compose.prod.yaml exec --env=prod php bin/console doctrine:migrations:migrate --no-interaction --allow-no-migration
       - echo "Access at https://localhost/"
     desc: Run the app for production
 

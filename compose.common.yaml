@@ -1,0 +1,56 @@
+services:
+  php:
+    depends_on:
+      - database
+    environment:
+      DEFAULT_URI: https://${SERVER_NAME:-localhost}:${HTTPS_PORT:-443}
+      MERCURE_PUBLISHER_JWT_KEY: ${CADDY_MERCURE_JWT_SECRET:-!ChangeThisMercureHubJWTSecretKey!}
+      MERCURE_SUBSCRIBER_JWT_KEY: ${CADDY_MERCURE_JWT_SECRET:-!ChangeThisMercureHubJWTSecretKey!}
+      SERVER_NAME: ${SERVER_NAME:-localhost}, php:80
+
+     # Run "composer require symfony/mercure-bundle" to install and configure the Mercure integration
+      MERCURE_JWT_SECRET: ${CADDY_MERCURE_JWT_SECRET:-!ChangeThisMercureHubJWTSecretKey!}
+      MERCURE_PUBLIC_URL: ${CADDY_MERCURE_PUBLIC_URL:-https://${SERVER_NAME:-localhost}:${HTTPS_PORT:-443}/.well-known/mercure}
+      MERCURE_URL: ${CADDY_MERCURE_URL:-http://php/.well-known/mercure}
+    ports:
+      - ${HTTP_PORT:-80}:80
+      - ${HTTPS_PORT:-443}:443
+      - ${HTTPS_PORT:-443}:443/udp
+    restart: unless-stopped
+    volumes:
+      - type: volume
+        source: caddy_config
+        target: /config
+      - type: volume
+        source: caddy_data
+        target: /data
+
+  database:
+    environment:
+      POSTGRES_DB: ${PGSQL_DB:-wishlist}
+      POSTGRES_USER: ${PGSQL_USERNAME:-wishlist}
+      POSTGRES_PASSWORD: ${PGSQL_PASSWORD:-wishlist}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U wishlist"]
+      interval: 2s
+      timeout: 5s
+      retries: 20
+      start_period: 0s
+      start_interval: 0s
+    image: postgres:18
+    restart: unless-stopped
+    volumes:
+      - type: volume
+        source: postgresql_data
+        target: /var/lib/postgresql
+
+# Mercure is installed as a Caddy module, prevent the Flex recipe from installing another service
+###> symfony/mercure-bundle ###
+###< symfony/mercure-bundle ###
+
+volumes:
+  caddy_config:
+  caddy_data:
+  postgresql_data:
+###> symfony/mercure-bundle ###
+###< symfony/mercure-bundle ###

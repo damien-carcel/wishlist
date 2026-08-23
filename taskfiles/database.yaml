@@ -5,7 +5,7 @@ tasks:
     aliases:
       - u
     cmds:
-      - docker compose up -d --wait database
+      - docker compose up --detach --wait database
     desc: Start the database container
 
   test:create:
@@ -14,7 +14,7 @@ tasks:
       - test:c
       - t:create
     cmds:
-      - docker compose run --rm -e APP_ENV=test cli bin/console doctrine:database:create --if-not-exists
+      - docker compose run --env APP_ENV=test --rm --user "{{.HOST_USER_IDS}}" php bin/console doctrine:database:create --if-not-exists
       - task: migrate
         vars:
           APP_ENV: test
@@ -24,7 +24,7 @@ tasks:
     aliases:
       - m
     cmds:
-      - docker compose run --rm -e APP_ENV="{{.APP_ENV}}" cli bin/console doctrine:migrations:migrate --no-interaction --allow-no-migration
+      - docker compose run --env APP_ENV="{{.APP_ENV}}" --rm --user "{{.HOST_USER_IDS}}" php bin/console doctrine:migrations:migrate --no-interaction --allow-no-migration
     desc: Run database migrations
     vars:
       APP_ENV: '{{.APP_ENV| default "dev"}}'
