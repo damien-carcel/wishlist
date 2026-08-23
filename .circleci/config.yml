@@ -1,20 +1,21 @@
 version: 2.1
 
-workflows:
-  pull_request:
-    jobs:
-      - tests:
-          context:
-            - docker-hub-credentials
-          filters:
-            branches:
-              ignore:
-                - main
+commands:
+  set_host_user_ids_environment_variable:
+    description: "Set Docker Compose HOST_USER_IDS environment variable according to the host virtual machine"
+    steps:
+      - run:
+          name: Set Docker Compose HOST_USER_IDS environment variable according to the host virtual machine
+          command: |
+            echo 'export HOST_USER_IDS="$(id -u):$(id -g)"' >> $BASH_ENV
+executors:
+  ubuntu:
+    machine:
+      image: ubuntu-2604:current
 
 jobs:
   tests:
-    machine:
-      image: ubuntu-2404:2025.09.1
+    executor: ubuntu
     steps:
       - checkout
       - set_host_user_ids_environment_variable
@@ -69,11 +70,33 @@ jobs:
       - store_test_results:
           path: test_results
 
-commands:
-  set_host_user_ids_environment_variable:
-    description: "Set Docker Compose HOST_USER_IDS environment variable according to the host virtual machine"
+  build_and_push:
+    executor: ubuntu
     steps:
       - run:
-          name: Set Docker Compose HOST_USER_IDS environment variable according to the host virtual machine
+          name: Create production Docker image tag
           command: |
-            echo 'export HOST_USER_IDS="$(id -u):$(id -g)"' >> $BASH_ENV
+            echo 'export PRODUCTION_IMAGE_TAG=$(date +"%Y%m%d%H%M%S")' >> $BASH_ENV
+      - run:
+          name: Build production Docker image
+          command: task build:prod
+      - run:
+          name: Push production Docker image
+          command: |
+            echo "$DOCKER_HUB_TOKEN" | docker login -u carcel --password-stdin
+            docker push carcel/wishlist:$PRODUCTION_IMAGE_TAG
+
+workflows:
+  pull_request:
+    jobs:
+      - tests:
+          filters:
+            branches:
+              ignore:
+                - main
+  build_and_push:
+    jobs:
+      - build_and_push:
+          filters:
+            branches:
+              only: main

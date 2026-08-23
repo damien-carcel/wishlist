@@ -1,0 +1,19 @@
+version: 3
+
+tasks:
+  dev:
+    aliases:
+      - d
+    cmds:
+      - docker compose pull
+      - docker compose build --pull
+    desc: Build the development image
+
+  prod:
+    aliases:
+      - p
+    cmds:
+      - docker build --tag carcel/wishlist:{{.PRODUCTION_IMAGE_TAG}} --target frankenphp_prod .
+    desc: Build the production image. Use "PRODUCTION_IMAGE_TAG" variable to specify a tag, "latest" used otherwise.
+    vars:
+      PRODUCTION_IMAGE_TAG: '{{.PRODUCTION_IMAGE_TAG| default "latest"}}'

@@ -5,14 +5,14 @@ tasks:
     aliases:
       - i
     cmds:
-      - docker compose run --rm cli composer install --prefer-dist --optimize-autoloader --no-interaction
+      - docker compose run --rm --user "{{.HOST_USER_IDS}}" php composer install --prefer-dist --optimize-autoloader --no-interaction
     desc: Install project dependencies
 
   outdated:
     aliases:
       - o
     cmds:
-      - docker compose run --rm cli composer outdated
+      - docker compose run --rm --user "{{.HOST_USER_IDS}}" php composer outdated
     desc: Check for outdated dependencies
     preconditions:
       - sh: test -d vendor
@@ -22,7 +22,7 @@ tasks:
     aliases:
       - u
     cmds:
-      - docker compose run --rm cli composer update --prefer-dist --optimize-autoloader --no-interaction {{.CLI_ARGS}}
+      - docker compose run --rm --user "{{.HOST_USER_IDS}}" php composer update --prefer-dist --optimize-autoloader --no-interaction {{.CLI_ARGS}}
     desc: Update project dependencies
     preconditions:
       - sh: test -d vendor
@@ -32,7 +32,7 @@ tasks:
     aliases:
       - r
     cmds:
-      - docker compose run --rm cli composer recipes:update {{.CLI_ARGS}}
+      - docker compose run --rm --user "{{.HOST_USER_IDS}}" php composer recipes:update {{.CLI_ARGS}}
     desc: Update Symfony recipes
     preconditions:
       - sh: test -d vendor
@@ -42,5 +42,5 @@ tasks:
     aliases:
       - req
     cmds:
-      - docker compose run --rm cli composer require {{.CLI_ARGS}}
+      - docker compose run --rm --user "{{.HOST_USER_IDS}}" php composer require {{.CLI_ARGS}}
     desc: Require new dependencies

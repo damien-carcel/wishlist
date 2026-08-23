@@ -1,0 +1,16 @@
+# Production environment override
+include:
+  - compose.common.yaml
+
+services:
+  php:
+    image: carcel/wishlist:latest
+
+# Configure the following environment variables in production:
+# - APP_SECRET
+# - MERCURE_PUBLISHER_JWT_KEY
+# - MERCURE_SUBSCRIBER_JWT_KEY
+# - SERVER_NAME
+# - POSTGRES_DB
+# - POSTGRES_USER
+# - POSTGRES_PASSWORD

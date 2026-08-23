@@ -2,13 +2,22 @@ version: '3'
 
 silent: true
 
+vars:
+  USER_IDS: '{{.USER_IDS| default "1000:1000"}}'
+
 includes:
+  build:
+    taskfile: ./taskfiles/build.yaml
+    aliases: [b]
   database:
     taskfile: ./taskfiles/database.yaml
     aliases: [db]
   dependencies:
     taskfile: ./taskfiles/dependencies.yaml
     aliases: [d]
+  run:
+    taskfile: ./taskfiles/run.yaml
+    aliases: [r]
   tests:
     taskfile: ./taskfiles/tests.yaml
     aliases: [t]
@@ -17,22 +26,3 @@ tasks:
   default:
     cmds:
       - task --list
-
-  down:
-    cmds:
-      - docker compose down -v --remove-orphans
-    desc: Stop and remove all containers
-
-  run:
-    cmds:
-      - docker compose run --rm --remove-orphans cli {{.CLI_ARGS}}
-    desc: "Run something in the cli container. Example: task run -- bin/console"
-
-  up:
-    cmds:
-      - task: dependencies:install
-      - task: database:up
-      - task: database:migrate
-      - task: database:test:create
-      - docker compose up -d --remove-orphans web
-    desc: Start and set up the application for development

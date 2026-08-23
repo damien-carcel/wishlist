@@ -1,0 +1,39 @@
+version: 3
+
+tasks:
+  bash:
+    aliases:
+      - sh
+    cmds:
+      - docker compose run --rm --user "{{.HOST_USER_IDS}}" php bash
+    desc: Launch a shell in the development container
+
+  dev:
+    aliases:
+      - d
+    cmds:
+      - task dependencies:install
+      - task database:up
+      - task database:migrate
+      - task database:test:create
+      - docker compose up --detach --force-recreate --remove-orphans --wait php
+      - echo "Access at https://localhost/"
+    desc: Run the app for development
+
+  prod:
+    aliases:
+      - p
+    cmds:
+      - task build:prod
+      - docker compose --file compose.prod.yaml up --detach --force-recreate --remove-orphans --wait php
+      - docker compose --file compose.prod.yaml exec --env=prod php bin/console doctrine:migrations:migrate --no-interaction --allow-no-migration
+      - echo "Access at https://localhost/"
+    desc: Run the app for production
+
+  stop:
+    aliases:
+      - s
+    cmds:
+      - docker compose down --remove-orphans --volumes
+      - docker compose --file compose.prod.yaml down --remove-orphans --volumes
+    desc: Stop and remove the presentation containers
