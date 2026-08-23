@@ -7,7 +7,15 @@ commands:
       - run:
           name: Set Docker Compose HOST_USER_IDS environment variable according to the host virtual machine
           command: |
-            echo 'export HOST_USER_IDS="$(id -u):$(id -g)"' >> $BASH_ENV
+            set -e
+            MACHINE_IDS=$(id -u):$(id -g)
+            echo "export HOST_USER_IDS='${MACHINE_IDS}'" >> $BASH_ENV
+  install_task:
+    description: "Install the latest Task binary"
+    steps:
+      - run:
+          name: Install the latest Task binary
+          command: npm install -g @go-task/cli
 executors:
   ubuntu:
     machine:
@@ -19,12 +27,10 @@ jobs:
     steps:
       - checkout
       - set_host_user_ids_environment_variable
+      - install_task
       - run:
           name: Setup Composer cache and config directories
           command: mkdir -p ~/.cache/composer ~/.config/composer
-      - run:
-          name: Install the latest Task binary
-          command: npm install -g @go-task/cli
       - restore_cache:
           keys:
             - composer-{{ .Environment.CACHE_VERSION }}-{{ checksum "composer.lock" }}
@@ -73,10 +79,14 @@ jobs:
   build_and_push:
     executor: ubuntu
     steps:
+      - checkout
+      - install_task
       - run:
           name: Create production Docker image tag
           command: |
-            echo 'export PRODUCTION_IMAGE_TAG=$(date +"%Y%m%d%H%M%S")' >> $BASH_ENV
+            set -e
+            CURRENT_DATE=$(date -u +%Y%m%d%H%M%S)
+            echo "export PRODUCTION_IMAGE_TAG='${CURRENT_DATE}'" >> $BASH_ENV
       - run:
           name: Build production Docker image
           command: task build:prod
