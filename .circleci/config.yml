@@ -88,13 +88,13 @@ jobs:
             CURRENT_DATE=$(date -u +%Y%m%d%H%M%S)
             echo "export PRODUCTION_IMAGE_TAG='${CURRENT_DATE}'" >> $BASH_ENV
       - run:
-          name: Build production Docker image
-          command: task build:prod
+          name: Install Qemu for multiplatform build
+          command: docker run --privileged --rm tonistiigi/binfmt --install arm64
       - run:
-          name: Push production Docker image
+          name: Build and push production Docker image
           command: |
             echo "$DOCKER_HUB_TOKEN" | docker login -u carcel --password-stdin
-            docker push carcel/wishlist:$PRODUCTION_IMAGE_TAG
+            task build:prod -- --push
 
 workflows:
   pull_request:

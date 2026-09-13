@@ -1,5 +1,3 @@
-#syntax=docker/dockerfile:1
-
 # Versions
 FROM dunglas/frankenphp:1-php8.5 AS frankenphp_upstream
 
@@ -11,15 +9,15 @@ SHELL ["/bin/bash", "-euxo", "pipefail", "-c"]
 WORKDIR /app
 
 RUN <<-EOF
-	apt-get update
-	apt-get install -y --no-install-recommends \
-		file \
-		git
+    apt-get update
+    apt-get install -y --no-install-recommends \
+        file \
+        git
     apt-get clean
     apt-get --yes autoremove --purge
-	install-php-extensions \
-		@composer \
-		apcu \
+    install-php-extensions \
+        @composer \
+        apcu \
         curl \
         dom \
         intl \
@@ -51,10 +49,10 @@ ENV FRANKENPHP_WORKER_CONFIG=watch
 
 # dev dependencies
 RUN <<-EOF
-	mv "$PHP_INI_DIR/php.ini-development" "$PHP_INI_DIR/php.ini"
-	install-php-extensions xdebug
-	useradd -m -s /bin/bash nonroot
-	git config --system --add safe.directory /app
+    mv "$PHP_INI_DIR/php.ini-development" "$PHP_INI_DIR/php.ini"
+    install-php-extensions xdebug
+    useradd -m -s /bin/bash nonroot
+    git config --system --add safe.directory /app
 EOF
 
 COPY --link docker/conf.d/20-app.dev.ini $PHP_INI_DIR/app.conf.d/
@@ -80,32 +78,32 @@ RUN composer install --no-cache --prefer-dist --no-dev --no-autoloader --no-scri
 COPY --link --exclude=frankenphp/ .. ./
 
 RUN <<-EOF
-	mkdir -p var/cache var/log var/share
-	composer dump-autoload --classmap-authoritative --no-dev
-	composer dump-env prod
-	composer run-script --no-dev post-install-cmd
-	if [ -f importmap.php ]; then
-		php bin/console asset-map:compile
-	fi
-	chmod +x bin/console
-	chmod -R g=u var
-	sync
+    mkdir -p var/cache var/log var/share
+    composer dump-autoload --classmap-authoritative --no-dev
+    composer dump-env prod
+    composer run-script --no-dev post-install-cmd
+    if [ -f importmap.php ]; then
+        php bin/console asset-map:compile
+    fi
+    chmod +x bin/console
+    chmod -R g=u var
+    sync
 EOF
 
 # Collect shared libraries needed by FrankenPHP and PHP extensions
 # hadolint ignore=DL3008,SC3054,DL4006
 RUN <<-'EOF'
-	apt-get update
-	apt-get install -y --no-install-recommends libtree
-	mkdir -p /tmp/libs
-	BINARIES=(docker php file)
-	for target in $(printf '%s\n' "${BINARIES[@]}" | xargs -I{} which {}) \
-		$(find "$(php -r 'echo ini_get("extension_dir");')" -maxdepth 2 -name "*.so"); do
-		libtree -pv "$target" 2>/dev/null | grep -oP '(?:── )\K/\S+(?= \[)' | while IFS= read -r lib; do
-			[ -f "$lib" ] && cp -n "$lib" /tmp/libs/
-		done
-	done
-	rm -rf /var/lib/apt/lists/*
+    apt-get update
+    apt-get install -y --no-install-recommends libtree
+    mkdir -p /tmp/libs
+    BINARIES=(docker php file)
+    for target in $(printf '%s\n' "${BINARIES[@]}" | xargs -I{} which {}) \
+        $(find "$(php -r 'echo ini_get("extension_dir");')" -maxdepth 2 -name "*.so"); do
+        libtree -pv "$target" 2>/dev/null | grep -oP '(?:── )\K/\S+(?= \[)' | while IFS= read -r lib; do
+            [ -f "$lib" ] && cp -n "$lib" /tmp/libs/
+        done
+    done
+    rm -rf /var/lib/apt/lists/*
 EOF
 
 # Prod FrankenPHP image
@@ -119,10 +117,10 @@ COPY --from=frankenphp_prod_builder /etc/ssl/openssl.cnf /etc/ssl/openssl.cnf
 ENV  OPENSSL_CONF=/etc/ssl/openssl.cnf XDG_CONFIG_HOME=/config XDG_DATA_HOME=/data SSL_CERT_FILE=/etc/ssl/certs/ca-certificates.crt
 
 RUN <<-EOF
-	mkdir -p /data/caddy /config/caddy
-	chown -R www-data:www-data /data /config
-	# Remove setuid/setgid bits
-	find / -perm /6000 -type f -exec chmod a-s {} + 2>/dev/null || true
+    mkdir -p /data/caddy /config/caddy
+    chown -R www-data:www-data /data /config
+    # Remove setuid/setgid bits
+    find / -perm /6000 -type f -exec chmod a-s {} + 2>/dev/null || true
 EOF
 
 COPY --link --exclude=var --from=frankenphp_prod_builder /app /app
