@@ -8,6 +8,7 @@ with [FrankenPHP](https://frankenphp.dev/).
 - Docker
 - Docker Compose v2
 - Task
+- Qemu (for multiplatform build of the production image)
 
 ## How to run it
 
