@@ -52,5 +52,3 @@ volumes:
   caddy_config:
   caddy_data:
   postgresql_data:
-###> symfony/mercure-bundle ###
-###< symfony/mercure-bundle ###

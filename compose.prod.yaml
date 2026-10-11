@@ -4,13 +4,22 @@ include:
 
 services:
   php:
-    image: carcel/wishlist:latest
+    image: carcel/wishlist:${IMAGE_VERSION}
 
 # Configure the following environment variables in production:
+
+# For Docker
+# - IMAGE_VERSION
+
+# For Symfony:
 # - APP_SECRET
-# - MERCURE_PUBLISHER_JWT_KEY
-# - MERCURE_SUBSCRIBER_JWT_KEY
+# - DATABASE_URL (must match the values defined below for PostgreSQL
+
+# For Mercure
+# - CADDY_MERCURE_JWT_SECRET
 # - SERVER_NAME
-# - POSTGRES_DB
-# - POSTGRES_USER
-# - POSTGRES_PASSWORD
+
+# For PostgreSQL
+# - PGSQL_DB
+# - PGSQL_USERNAME
+# - PGSQL_PASSWORD
