@@ -94,7 +94,7 @@ jobs:
           name: Build and push production Docker image
           command: |
             echo "$DOCKER_HUB_TOKEN" | docker login -u carcel --password-stdin
-            task build:prod -- --push
+            task build:prod -- --push --platform linux/amd64,linux/arm64
 
 workflows:
   pull_request:

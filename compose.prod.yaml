@@ -1,10 +1,15 @@
+---
 # Production environment override
-include:
-  - compose.common.yaml
-
 services:
   php:
     image: carcel/wishlist:${IMAGE_VERSION}
+    build:
+      context: .
+      target: frankenphp_prod
+    environment:
+      APP_SECRET: ${APP_SECRET}
+      MERCURE_PUBLISHER_JWT_KEY: ${CADDY_MERCURE_JWT_SECRET}
+      MERCURE_SUBSCRIBER_JWT_KEY: ${CADDY_MERCURE_JWT_SECRET}
 
 # Configure the following environment variables in production:
 
@@ -15,11 +20,12 @@ services:
 # - APP_SECRET
 # - DATABASE_URL (must match the values defined below for PostgreSQL
 
-# For Mercure
+# For Caddy and Mercure
 # - CADDY_MERCURE_JWT_SECRET
+# - CADDY_MERCURE_JWT_ISSUER
 # - SERVER_NAME
 
 # For PostgreSQL
-# - PGSQL_DB
-# - PGSQL_USERNAME
-# - PGSQL_PASSWORD
+# - POSTGRES_DB
+# - POSTGRES_USER
+# - POSTGRES_PASSWORD

@@ -1,38 +1,59 @@
-# Development environment override
-include:
-  - compose.common.yaml
-
+---
 services:
   php:
-    build:
-      context: .
-      target: frankenphp_dev
     environment:
-      APP_ENV: "${APP_ENV:-dev}"
-      FRANKENPHP_WORKER_CONFIG: watch
-      FRANKENPHP_SITE_CONFIG: hot_reload
-      MERCURE_EXTRA_DIRECTIVES: demo
-      # See https://xdebug.org/docs/all_settings#mode
-      XDEBUG_MODE: "${XDEBUG_MODE:-develop}"
-    extra_hosts:
-      # Ensure that host.docker.internal is correctly defined on Linux
-      - host.docker.internal:host-gateway
-    tty: true
+      SERVER_NAME: ${SERVER_NAME:-localhost}, php:80
+      DEFAULT_URI: ${DEFAULT_URI:-https://${SERVER_NAME:-localhost}:${HTTPS_PORT:-443}}
+      MERCURE_TRUSTED_ISSUERS: ${CADDY_MERCURE_JWT_ISSUER:-https://localhost}
+      MERCURE_PUBLISHER_JWT_KEY: ${CADDY_MERCURE_JWT_SECRET:-!ChangeThisMercureHubJWTSecretKey!}
+      MERCURE_SUBSCRIBER_JWT_KEY: ${CADDY_MERCURE_JWT_SECRET:-!ChangeThisMercureHubJWTSecretKey!}
+      # Run "composer require symfony/orm-pack" to install and configure Doctrine ORM
+      DATABASE_URL: postgresql://${POSTGRES_USER:-wishlist}:${POSTGRES_PASSWORD:-wishlist}@database:5432/${POSTGRES_DB:-wishlist}?serverVersion=${POSTGRES_VERSION:-18}&charset=${POSTGRES_CHARSET:-utf8}
+      # Run "composer require symfony/mercure-bundle" to install and configure the Mercure integration
+      MERCURE_URL: ${CADDY_MERCURE_URL:-http://php/.well-known/mercure}
+      MERCURE_PUBLIC_URL: ${CADDY_MERCURE_PUBLIC_URL:-https://${SERVER_NAME:-localhost}:${HTTPS_PORT:-443}/.well-known/mercure}
+      MERCURE_JWT_SECRET: ${CADDY_MERCURE_JWT_SECRET:-!ChangeThisMercureHubJWTSecretKey!}
+      MERCURE_JWT_ISSUER: ${CADDY_MERCURE_JWT_ISSUER:-https://localhost}
+    # Using the short syntax as PHPStorm does not accept the port long syntax
+    ports:
+      - ${HTTP_PORT:-80}:80
+      - ${HTTPS_PORT:-443}:443
+      - ${HTTPS_PORT:-443}:443/udp
+    restart: unless-stopped
     volumes:
-      - type: bind
-        source: .
-        target: /app
-      - type: bind
-        source: ./docker/Caddyfile
-        target: /etc/docker/Caddyfile
-        read_only: true
-      - type: bind
-        source: ./docker/conf.d/20-app.dev.ini
-        target: /usr/local/etc/php/app.conf.d/20-app.dev.ini
-        read_only: true
+      - type: volume
+        source: caddy_config
+        target: /config
+      - type: volume
+        source: caddy_data
+        target: /data
+
+  database:
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-wishlist}
+      POSTGRES_USER: ${POSTGRES_USER:-wishlist}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-wishlist}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U wishlist"]
+      interval: 2s
+      timeout: 5s
+      retries: 20
+      start_period: 0s
+      start_interval: 0s
+    image: postgres:18
+    restart: unless-stopped
+    volumes:
+      - type: volume
+        source: postgresql_data
+        target: /var/lib/postgresql
+
+# Mercure is installed as a Caddy module, prevent the Flex recipe from installing another service
 ###> symfony/mercure-bundle ###
 ###< symfony/mercure-bundle ###
 
-  database:
-    ports:
-      - ${WISHLIST_DATABASE_PORT:-5432}:5432
+volumes:
+  caddy_config:
+  caddy_data:
+  postgresql_data:
+###> symfony/mercure-bundle ###
+###< symfony/mercure-bundle ###

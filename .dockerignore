@@ -13,13 +13,13 @@
 **/.gitmodules
 **/compose.*.yaml
 **/compose.*.yml
-compose.common.yaml
+**/compose.yaml
 **/compose.yml
 **/docker-compose.*.yaml
 **/docker-compose.*.yml
 **/docker-compose.yaml
 **/docker-compose.yml
-Dockerfile
+**/Dockerfile
 **/Thumbs.db
 .github/
 docs/
