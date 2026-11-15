@@ -1,0 +1,9 @@
+version: 3
+
+tasks:
+  dev:
+    aliases:
+      - d
+    cmds:
+      - bun run --bun dev
+    desc: Run the development server

@@ -1,0 +1,16 @@
+version: "3"
+
+silent: true
+
+includes:
+  dependencies:
+    taskfile: ./taskfiles/dependencies.yaml
+    aliases: [d]
+  run:
+    taskfile: ./taskfiles/run.yaml
+    aliases: [r]
+
+tasks:
+  default:
+    cmds:
+      - task --list
