@@ -6,7 +6,7 @@ tasks:
       - f
       - s:f
     cmds:
-      - bun run --bun prettier --check
+      - bun run --bun format --check
     desc: Check the code style
 
   static:format:fix:
@@ -14,5 +14,44 @@ tasks:
       - f:f
       - s:f:f
     cmds:
-      - bun run --bun prettier --write
+      - bun run --bun format --write
     desc: Fix the code style
+
+  static:lint:
+    aliases:
+      - l
+      - s:l
+    cmds:
+      - bun run --bun lint {{.CLI_ARGS}}
+    desc: Lint the application code
+
+  static:lint:fix:
+    aliases:
+      - l:f
+      - s:l:f
+    cmds:
+      - bun run --bun lint --fix
+    desc: Fix the application code
+
+  all:
+    aliases:
+      - a
+    cmds:
+      - echo ""
+      - echo "|---------------------------|"
+      - echo "| Check the code formatting |"
+      - echo "|---------------------------|"
+      - echo ""
+      - task: static:format
+      - echo ""
+      - echo "|---------------------------|"
+      - echo "| Lint the application code |"
+      - echo "|---------------------------|"
+      - echo ""
+      - task: static:lint
+      - echo ""
+      - echo "|---------------------------|"
+      - echo "|   All tests successful    |"
+      - echo "|---------------------------|"
+      - echo ""
+    desc: Execute all the tests

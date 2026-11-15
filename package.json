@@ -2,13 +2,20 @@
   "name": "wishlist",
   "scripts": {
     "dev": "bun run --hot src/index.ts",
-    "prettier": "prettier '**/*.{js,jsx,mjs,ts,tsx,mts}'"
+    "lint": "eslint",
+    "format": "prettier '**/*.{js,jsx,mjs,ts,tsx,mts}'"
   },
   "dependencies": {
     "hono": "^4.13.18"
   },
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
     "@types/bun": "latest",
-    "prettier": "3.10.1"
+    "eslint": "^10.15.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-formatter-junit": "^9.0.1",
+    "globals": "^17.14.0",
+    "prettier": "3.10.1",
+    "typescript-eslint": "^8.72.2"
   }
 }
