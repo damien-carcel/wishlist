@@ -1,0 +1,39 @@
+version: 2.1
+
+orbs:
+  node: circleci/node@7.2.1
+
+jobs:
+  tests:
+    executor: node/default
+    steps:
+      - checkout
+      - node/install-bun
+      - run:
+          name: Install the latest Task binary
+          command: sh -c "$(curl --location https://taskfile.dev/install.sh)" -- -d -b ~/bin
+      - restore_cache:
+          keys:
+            - bun-{{ .Environment.CACHE_VERSION }}-{{ checksum "bun.lock" }}
+            - bun-{{ .Environment.CACHE_VERSION }}-
+      - run:
+          name: Install dependencies
+          command: task dependencies:install
+      - save_cache:
+          key: bun-{{ .Environment.CACHE_VERSION }}-{{ checksum "bun.lock" }}
+          paths:
+            - ./node_modules
+            - ./.next/cache
+      - store_artifacts:
+          path: test_results
+      - store_test_results:
+          path: test_results
+
+workflows:
+  pull_request:
+    jobs:
+      - tests:
+          filters:
+            branches:
+              ignore:
+                - main
