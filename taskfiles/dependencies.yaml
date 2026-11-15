@@ -1,0 +1,26 @@
+version: 3
+
+tasks:
+  install:
+    aliases:
+      - i
+    cmds:
+      - bun install --frozen-lockfile
+    desc: Install dependencies
+
+  update:
+    aliases:
+      - u
+    cmds:
+      - bun update
+    desc: Updates project dependencies to their latest version
+
+  outdated:
+    aliases:
+      - o
+    cmds:
+      - bun outdated
+    desc: Check for outdated project dependencies
+    preconditions:
+      - sh: test -d node_modules
+        msg: Cannot check for outdated dependencies if they are not already installed

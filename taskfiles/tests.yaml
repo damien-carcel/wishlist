@@ -1,0 +1,91 @@
+version: "3"
+
+tasks:
+  static:format:
+    aliases:
+      - f
+      - s:f
+    cmds:
+      - bun run --bun format --check
+    desc: Check the code style
+
+  static:format:fix:
+    aliases:
+      - f:f
+      - s:f:f
+    cmds:
+      - bun run --bun format --write
+    desc: Fix the code style
+
+  static:lint:
+    aliases:
+      - l
+      - s:l
+    cmds:
+      - bun run --bun lint {{.CLI_ARGS}}
+    desc: Lint the application code
+
+  static:lint:fix:
+    aliases:
+      - l:f
+      - s:l:f
+    cmds:
+      - bun run --bun lint --fix
+    desc: Fix the application code
+
+  static:types:
+    aliases:
+      - t
+      - s:t
+    cmds:
+      - bun run --bun typecheck
+    desc: Check the code typing
+
+  unit:
+    aliases:
+      - u
+    cmds:
+      - bun test {{.CLI_ARGS}}
+    desc: Run unit tests
+
+  unit:watch:
+    aliases:
+      - u:w
+    cmds:
+      - bun test --watch
+    desc: Run unit tests in watch mode
+
+  all:
+    aliases:
+      - a
+    cmds:
+      - echo ""
+      - echo "|---------------------------|"
+      - echo "| Check the code formatting |"
+      - echo "|---------------------------|"
+      - echo ""
+      - task: static:format
+      - echo ""
+      - echo "|---------------------------|"
+      - echo "| Lint the application code |"
+      - echo "|---------------------------|"
+      - echo ""
+      - task: static:lint
+      - echo ""
+      - echo "|---------------------------|"
+      - echo "|   Check the code typing   |"
+      - echo "|---------------------------|"
+      - echo ""
+      - task: static:types
+      - echo ""
+      - echo "|---------------------------|"
+      - echo "|      Run unit tests       |"
+      - echo "|---------------------------|"
+      - echo ""
+      - task: unit
+      - echo ""
+      - echo "|---------------------------|"
+      - echo "|   All tests successful    |"
+      - echo "|---------------------------|"
+      - echo ""
+    desc: Execute all the tests

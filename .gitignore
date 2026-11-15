@@ -1,2 +1,13 @@
 # deps
 node_modules/
+tsconfig.tsbuildinfo
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+
+# testing
+/coverage
+/test_results
