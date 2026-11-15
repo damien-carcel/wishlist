@@ -9,6 +9,9 @@ includes:
   run:
     taskfile: ./taskfiles/run.yaml
     aliases: [r]
+  tests:
+    taskfile: ./taskfiles/tests.yaml
+    aliases: [t]
 
 tasks:
   default:

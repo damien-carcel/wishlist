@@ -24,6 +24,9 @@ jobs:
           paths:
             - ./node_modules
             - ./.next/cache
+      - run:
+          name: Check the code style
+          command: task tests:static:format
       - store_artifacts:
           path: test_results
       - store_test_results:

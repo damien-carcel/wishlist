@@ -1,0 +1,18 @@
+version: "3"
+
+tasks:
+  static:format:
+    aliases:
+      - f
+      - s:f
+    cmds:
+      - bun run --bun prettier --check
+    desc: Check the code style
+
+  static:format:fix:
+    aliases:
+      - f:f
+      - s:f:f
+    cmds:
+      - bun run --bun prettier --write
+    desc: Fix the code style

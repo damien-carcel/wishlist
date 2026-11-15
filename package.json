@@ -1,12 +1,14 @@
 {
   "name": "wishlist",
   "scripts": {
-    "dev": "bun run --hot src/index.ts"
+    "dev": "bun run --hot src/index.ts",
+    "prettier": "prettier '**/*.{js,jsx,mjs,ts,tsx,mts}'"
   },
   "dependencies": {
     "hono": "^4.13.18"
   },
   "devDependencies": {
-    "@types/bun": "latest"
+    "@types/bun": "latest",
+    "prettier": "3.10.1"
   }
 }
