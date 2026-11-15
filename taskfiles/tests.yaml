@@ -41,6 +41,20 @@ tasks:
       - bun run --bun typecheck
     desc: Check the code typing
 
+  unit:
+    aliases:
+      - u
+    cmds:
+      - bun test {{.CLI_ARGS}}
+    desc: Run unit tests
+
+  unit:watch:
+    aliases:
+      - u:w
+    cmds:
+      - bun test --watch
+    desc: Run unit tests in watch mode
+
   all:
     aliases:
       - a
@@ -63,6 +77,12 @@ tasks:
       - echo "|---------------------------|"
       - echo ""
       - task: static:types
+      - echo ""
+      - echo "|---------------------------|"
+      - echo "|      Run unit tests       |"
+      - echo "|---------------------------|"
+      - echo ""
+      - task: unit
       - echo ""
       - echo "|---------------------------|"
       - echo "|   All tests successful    |"
