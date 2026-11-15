@@ -3,7 +3,8 @@
   "scripts": {
     "dev": "bun run --hot src/index.ts",
     "lint": "eslint",
-    "format": "prettier '**/*.{js,jsx,mjs,ts,tsx,mts}'"
+    "format": "prettier '**/*.{js,jsx,mjs,ts,tsx,mts}'",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "hono": "^4.13.18"

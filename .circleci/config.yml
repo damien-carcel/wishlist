@@ -28,6 +28,9 @@ jobs:
           name: Check the code style
           command: task tests:static:format
       - run:
+          name: Check the code typing
+          command: task tests:static:types
+      - run:
           name: Lint the application code
           command: task tests:static:lint -- --format junit -o test_results/eslint.xml
       - store_artifacts:

@@ -33,6 +33,14 @@ tasks:
       - bun run --bun lint --fix
     desc: Fix the application code
 
+  static:types:
+    aliases:
+      - t
+      - s:t
+    cmds:
+      - bun run --bun typecheck
+    desc: Check the code typing
+
   all:
     aliases:
       - a
@@ -49,6 +57,12 @@ tasks:
       - echo "|---------------------------|"
       - echo ""
       - task: static:lint
+      - echo ""
+      - echo "|---------------------------|"
+      - echo "|   Check the code typing   |"
+      - echo "|---------------------------|"
+      - echo ""
+      - task: static:types
       - echo ""
       - echo "|---------------------------|"
       - echo "|   All tests successful    |"
