@@ -1,5 +1,11 @@
-import { expect, test } from 'bun:test';
+import { describe, expect, it } from 'bun:test';
+import app from './index';
 
-test('2 + 2', () => {
-  expect(2 + 2).toBe(4);
+describe('Home page', () => {
+  it('says hello', async () => {
+    const res = await app.request('/');
+
+    expect(res.status).toBe(200);
+    expect(await res.text()).toBe('Hello Hono!');
+  });
 });
