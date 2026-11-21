@@ -2,7 +2,7 @@
 
 ## Requirements
 
-- [Bun](https://bun.com/)
+- [pnpm](https://pnpm.io/)
 - [Task](https://taskfile.dev/)
 
 ## How to use it?

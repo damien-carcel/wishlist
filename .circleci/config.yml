@@ -5,22 +5,25 @@ orbs:
 
 jobs:
   tests:
-    executor: node/default
+    executor:
+      name: node/default
+      tag: '26'
     steps:
       - checkout
-      - node/install-bun
+      - node/install-pnpm:
+          version: '12'
       - run:
           name: Install the latest Task binary
           command: sh -c "$(curl --location https://taskfile.dev/install.sh)" -- -d -b ~/bin
       - restore_cache:
           keys:
-            - bun-{{ .Environment.CACHE_VERSION }}-{{ checksum "bun.lock" }}
-            - bun-{{ .Environment.CACHE_VERSION }}-
+            - pnpm-{{ .Environment.CACHE_VERSION }}-{{ checksum "pnpm-lock.yaml" }}
+            - pnpm-{{ .Environment.CACHE_VERSION }}-
       - run:
           name: Install dependencies
           command: task dependencies:install
       - save_cache:
-          key: bun-{{ .Environment.CACHE_VERSION }}-{{ checksum "bun.lock" }}
+          key: pnpm-{{ .Environment.CACHE_VERSION }}-{{ checksum "pnpm-lock.yaml" }}
           paths:
             - ./node_modules
             - ./.next/cache
@@ -35,7 +38,7 @@ jobs:
           command: task tests:static:types
       - run:
           name: Run unit tests
-          command: task tests:unit -- --reporter=junit --reporter-outfile=./test_results/unit.xml
+          command: task tests:unit -- --reporter=default --reporter=junit --outputFile=./test_results/unit.xml
       - store_artifacts:
           path: test_results
       - store_test_results:

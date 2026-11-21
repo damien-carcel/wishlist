@@ -1,6 +1,6 @@
-import { describe, expect, it } from 'bun:test';
+import { describe, expect, it } from 'vitest';
 
-import app from './index';
+import app from '../../src/app.js';
 
 describe('Home page', () => {
   it('says hello', async () => {

@@ -1,9 +1,30 @@
-import { Hono } from 'hono';
+import { serve } from '@hono/node-server';
 
-const app = new Hono();
+import app from './app.js';
 
-app.get('/', (c) => {
-  return c.text('Hello Hono!');
+const server = serve(
+  {
+    fetch: app.fetch,
+    port: 3000,
+  },
+  (info) => {
+    console.log(`Server is running on http://localhost:${info.port}`);
+  },
+);
+
+// graceful shutdown
+process.on('SIGINT', () => {
+  server.close();
+  console.log('Server closed');
+  process.exit(0);
 });
-
-export default app;
+process.on('SIGTERM', () => {
+  server.close((err) => {
+    if (err) {
+      console.error(err);
+      process.exit(1);
+    }
+    console.log('Server closed');
+    process.exit(0);
+  });
+});
