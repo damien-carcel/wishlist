@@ -6,7 +6,7 @@ tasks:
       - f
       - s:f
     cmds:
-      - bun run --bun format --check
+      - pnpm run format --check
     desc: Check the code style
 
   static:format:fix:
@@ -14,7 +14,7 @@ tasks:
       - f:f
       - s:f:f
     cmds:
-      - bun run --bun format --write
+      - pnpm run format --write
     desc: Fix the code style
 
   static:lint:
@@ -22,7 +22,7 @@ tasks:
       - l
       - s:l
     cmds:
-      - bun run --bun lint {{.CLI_ARGS}}
+      - pnpm run lint {{.CLI_ARGS}}
     desc: Lint the application code
 
   static:lint:fix:
@@ -30,7 +30,7 @@ tasks:
       - l:f
       - s:l:f
     cmds:
-      - bun run --bun lint --fix
+      - pnpm run lint --fix
     desc: Fix the application code
 
   static:types:
@@ -38,21 +38,21 @@ tasks:
       - t
       - s:t
     cmds:
-      - bun run --bun typecheck
+      - pnpm run typecheck
     desc: Check the code typing
 
   unit:
     aliases:
       - u
     cmds:
-      - bun test {{.CLI_ARGS}}
+      - pnpm run test --run {{.CLI_ARGS}}
     desc: Run unit tests
 
   unit:watch:
     aliases:
       - u:w
     cmds:
-      - bun test --watch
+      - pnpm run test --watch
     desc: Run unit tests in watch mode
 
   all:

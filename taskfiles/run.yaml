@@ -1,9 +1,25 @@
 version: 3
 
 tasks:
+  build:
+    aliases:
+      - b
+    cmds:
+      - pnpm run build
+    desc: Build the project for production
+
   dev:
     aliases:
       - d
     cmds:
-      - bun run --bun dev
+      - pnpm run dev
     desc: Run the development server
+
+  prod:
+    aliases:
+      - p
+    cmds:
+      - pnpm run start
+    desc: Run the production-like server
+    deps:
+      - build
