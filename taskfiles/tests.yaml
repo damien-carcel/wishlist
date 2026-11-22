@@ -55,6 +55,20 @@ tasks:
       - pnpm run test --watch
     desc: Run unit tests in watch mode
 
+  e2e:
+    aliases:
+      - e
+    cmds:
+      - pnpm exec playwright test {{.CLI_ARGS}}
+    desc: Runs the end-to-end tests. Be sure to run the application first, preferably in production-like mode.
+
+  e2e:ui:
+    aliases:
+      - e:ui
+    cmds:
+      - pnpm exec playwright test --ui
+    desc: Starts the interactive UI mode.
+
   all:
     aliases:
       - a
@@ -83,6 +97,12 @@ tasks:
       - echo "|---------------------------|"
       - echo ""
       - task: unit
+      - echo ""
+      - echo "|---------------------------|"
+      - echo "|   Run end-to-end tests    |"
+      - echo "|---------------------------|"
+      - echo ""
+      - task: e2e
       - echo ""
       - echo "|---------------------------|"
       - echo "|   All tests successful    |"

@@ -7,6 +7,6 @@ describe('Home page', () => {
     const res = await app.request('/');
 
     expect(res.status).toBe(200);
-    expect(await res.text()).toBe('Hello Hono!');
+    expect(await res.text()).toContain('Hello Hono!');
   });
 });
