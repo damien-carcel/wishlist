@@ -62,6 +62,13 @@ tasks:
       - pnpm exec playwright test {{.CLI_ARGS}}
     desc: Runs the end-to-end tests. Be sure to run the application first, preferably in production-like mode.
 
+  e2e:install:
+    aliases:
+      - e:i
+    cmds:
+      - pnpm exec playwright install
+    desc: Installs the required browsers for end-to-end tests.
+
   e2e:ui:
     aliases:
       - e:ui

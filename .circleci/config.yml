@@ -3,15 +3,18 @@ version: 2.1
 orbs:
   node: circleci/node@7.2.1
 
+executors:
+  playwright:
+    docker:
+      - image: mcr.microsoft.com/playwright:v1.65.1-resolute
+
 jobs:
-  tests:
+  setup:
     executor:
       name: node/default
       tag: '26'
     steps:
       - checkout
-      - node/install-pnpm:
-          version: '12'
       - run:
           name: Install the latest Task binary
           command: sh -c "$(curl --location https://taskfile.dev/install.sh)" -- -d -b ~/bin
@@ -27,6 +30,19 @@ jobs:
           paths:
             - ./node_modules
             - ./.next/cache
+      - persist_to_workspace:
+          root: ~/
+          paths:
+            - bin
+            - project
+
+  static-analysis:
+    executor:
+      name: node/default
+      tag: '26'
+    steps:
+      - attach_workspace:
+          at: ~/
       - run:
           name: Check the code style
           command: task tests:static:format
@@ -36,6 +52,18 @@ jobs:
       - run:
           name: Check the code typing
           command: task tests:static:types
+      - store_artifacts:
+          path: test_results
+      - store_test_results:
+          path: test_results
+
+  tests:
+    executor:
+      name: node/default
+      tag: '26'
+    steps:
+      - attach_workspace:
+          at: ~/
       - run:
           name: Run unit tests
           command: task tests:unit -- --reporter=default --reporter=junit --outputFile=./test_results/unit.xml
@@ -44,11 +72,51 @@ jobs:
       - store_test_results:
           path: test_results
 
+  e2e:
+    executor: playwright
+    steps:
+      - attach_workspace:
+          at: ~/
+      - run:
+          name: Expose already installed task binary
+          command: echo 'export PATH="/root/bin:$PATH"' >> "$BASH_ENV"
+      - run:
+          name: Install pnpm package manager
+          command: |
+            { curl -fsSL https://get.pnpm.io/ -o /tmp/pnpm-install.sh \
+              || curl -fsSL https://github.com/pnpm/get.pnpm.io/releases/latest/download/install.sh -o /tmp/pnpm-install.sh; } \
+              && sh /tmp/pnpm-install.sh
+            echo 'export PNPM_HOME="/root/.local/share/pnpm"' >> "$BASH_ENV"
+            echo 'export PATH="$PNPM_HOME/bin:$PATH"' >> "$BASH_ENV"
+      - run:
+          name: Configure pnpm store
+          command: pnpm config set store-dir .pnpm-store
+      - run:
+          name: Setup playwright
+          command: task tests:e2e:install
+      - run:
+          name: Run the end-to-end tests
+          command: |
+            task run:prod&
+            task tests:e2e -- --reporter=junit
+          environment:
+            PLAYWRIGHT_JUNIT_OUTPUT_NAME: ./test_results/e2e.xml
+      - store_artifacts:
+          path: test_results
+      - store_test_results:
+          path: test_results
+
 workflows:
   pull_request:
+    when: pipeline.git.branch != "main"
     jobs:
+      - setup
+      - static-analysis:
+          requires:
+            - setup
       - tests:
-          filters:
-            branches:
-              ignore:
-                - main
+          requires:
+            - setup
+      - e2e:
+          requires:
+            - setup
